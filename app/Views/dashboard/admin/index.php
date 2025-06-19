@@ -16,50 +16,50 @@
             </div>
             <div class="mt-4 pb-3 d-flex align-items-center">
                 <span class="btn btn-primary rounded-circle round-48 hstack justify-content-center">
-                    <i class="ti ti-shopping-cart fs-6"></i>
+                    <i class="ti ti-moneybag"></i>
                 </span>
                 <div class="ms-3">
                     <h5 class="mb-0 fw-bolder fs-4">Total Pendapatan</h5>
                     <span class="text-muted fs-3">Total rupiah pengguna</span>
                 </div>
                 <div class="ms-auto">
-                    <span class="badge bg-secondary-subtle text-muted">+68%</span>
+                    <span class="badge bg-info-subtle text-muted">Rp80,000,000</span>
                 </div>
             </div>
             <div class="py-3 d-flex align-items-center">
                 <span class="btn btn-warning rounded-circle round-48 hstack justify-content-center">
-                    <i class="ti ti-star fs-6"></i>
+                    <i class="ti ti-clock-hour-12"></i>
                 </span>
                 <div class="ms-3">
-                    <h5 class="mb-0 fw-bolder fs-4">Best Seller</h5>
-                    <span class="text-muted fs-3">MaterialPro Admin</span>
+                    <h5 class="mb-0 fw-bolder fs-4">Total Pesanan yang Tertunda</h5>
+                    <span class="text-muted fs-3">Status pesanan yang masih tertunda</span>
                 </div>
                 <div class="ms-auto">
-                    <span class="badge bg-secondary-subtle text-muted">+68%</span>
+                    <span class="badge bg-warning-subtle text-muted">18</span>
                 </div>
             </div>
             <div class="py-3 d-flex align-items-center">
                 <span class="btn btn-success rounded-circle round-48 hstack justify-content-center">
-                    <i class="ti ti-message-dots fs-6"></i>
+                    <i class="ti ti-checks fs-6"></i>
                 </span>
                 <div class="ms-3">
-                    <h5 class="mb-0 fw-bolder fs-4">Most Commented</h5>
-                    <span class="text-muted fs-3">Ample Admin</span>
+                    <h5 class="mb-0 fw-bolder fs-4">Total Pesanan yang Berhasil</h5>
+                    <span class="text-muted fs-3">Status pesanan yang sudah berhasil</span>
                 </div>
                 <div class="ms-auto">
-                    <span class="badge bg-secondary-subtle text-muted">+68%</span>
+                    <span class="badge bg-success-subtle text-muted">5</span>
                 </div>
             </div>
             <div class="pt-3 mb-7 d-flex align-items-center">
                 <span class="btn btn-secondary rounded-circle round-48 hstack justify-content-center">
-                    <i class="ti ti-diamond fs-6"></i>
+                    <i class="ti ti-users fs-6"></i>
                 </span>
                 <div class="ms-3">
-                    <h5 class="mb-0 fw-bolder fs-4">Top Budgets</h5>
-                    <span class="text-muted fs-3">Sunil Joshi</span>
+                    <h5 class="mb-0 fw-bolder fs-4">Jumlah Pengguna</h5>
+                    <span class="text-muted fs-3">Pengguna yang sudah daftar di Tektok Adventure</span>
                 </div>
                 <div class="ms-auto">
-                    <span class="badge bg-secondary-subtle text-muted">+15%</span>
+                    <span class="badge bg-info-subtle text-muted">20</span>
                 </div>
             </div>
         </div>

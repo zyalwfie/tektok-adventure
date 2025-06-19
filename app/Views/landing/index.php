@@ -226,7 +226,7 @@
                         <!-- Product image-->
                         <img
                             class="card-img-top"
-                            src="<?= base_url('img/product/') . $product['image'] ?>"
+                            src="<?= base_url('img/product/uploads/') . $product['image'] ?>"
                             alt="<?= $product['name'] ?>" />
                         <!-- Product details-->
                         <div class="card-body p-4">

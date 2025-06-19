@@ -18,6 +18,12 @@
                     <span class="hide-menu">Beranda</span>
                 </li>
                 <li class="sidebar-item">
+                    <a class="sidebar-link" href="<?= route_to('landing.index') ?>" aria-expanded="false">
+                        <i class="ti ti-home"></i>
+                        <span class="hide-menu">Kembali</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
                     <a class="sidebar-link <?= (uri_string() === 'dashboard/user' || uri_string() === 'dashboard/admin') ? 'active' : '' ?>" href="<?= in_groups('admin') ? route_to('admin.index') : route_to('user.index') ?>" aria-expanded="false">
                         <i class="ti ti-layout"></i>
                         <span class="hide-menu">Dasbor</span>
@@ -31,31 +37,33 @@
                     <iconify-icon icon="solar:menu-dots-linear" class="nav-small-cap-icon fs-4"></iconify-icon>
                     <span class="hide-menu">Manajemen</span>
                 </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link justify-content-between"
-                        href="#"
-                        aria-expanded="false">
-                        <div class="d-flex align-items-center gap-3">
-                            <span class="d-flex">
-                                <i class="ti ti-users"></i>
-                            </span>
-                            <span class="hide-menu">Pengguna</span>
-                        </div>
+                <?php if (in_groups('admin')) : ?>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link justify-content-between <?= (url_is('dashboard/admin/users*')) ? 'active' : '' ?>"
+                            href="<?= route_to('admin.user.index') ?>"
+                            aria-expanded="false">
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="d-flex">
+                                    <i class="ti ti-users"></i>
+                                </span>
+                                <span class="hide-menu">Pengguna</span>
+                            </div>
 
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link justify-content-between"
-                        href="#" aria-expanded="false">
-                        <div class="d-flex align-items-center gap-3">
-                            <span class="d-flex">
-                                <i class="ti ti-briefcase"></i>
-                            </span>
-                            <span class="hide-menu">Produk</span>
-                        </div>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link justify-content-between <?= url_is('dashboard/admin/products*') ? 'active' : '' ?>"
+                            href="<?= route_to('admin.products.index') ?>" aria-expanded="false">
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="d-flex">
+                                    <i class="ti ti-briefcase"></i>
+                                </span>
+                                <span class="hide-menu">Produk</span>
+                            </div>
 
-                    </a>
-                </li>
+                        </a>
+                    </li>
+                <?php endif; ?>
                 <li class="sidebar-item">
                     <a class="sidebar-link justify-content-between"
                         href="#" aria-expanded="false">

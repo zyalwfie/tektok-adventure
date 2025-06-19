@@ -63,6 +63,6 @@ class Landing extends BaseController
             'pageTitle' => 'Tektok Adventure | Keranjang'
         ];
 
-        return view('landing/cart/index', $data);
+        return view('landing/cart', $data);
     }
 }

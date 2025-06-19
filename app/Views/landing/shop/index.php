@@ -102,7 +102,8 @@
                                         <!-- Product real price -->
                                         <small class="text-decoration-line-through me-1">Rp<?= number_format($product['price'], '0', '.', ',') ?></small>
                                         <!-- Product discount price -->
-                                        <?php $discountPrice = $product['discount'] / 100 * $product['price'] ?>
+                                        <?php $discountAmount = $product['price'] * ($product['discount'] / 100) ?>
+                                        <?php $discountPrice = $product['price'] - $discountAmount ?>
                                         <span>Rp<?= number_format($discountPrice, '0', '.', ',') ?></span>
                                     <?php else : ?>
                                         <!-- Product price -->
@@ -202,11 +203,7 @@
         transform: translateY(-50%);
         transition: .3s ease-in-out;
     }
-</style>
-<?= $this->endSection(); ?>
 
-<?= $this->section('head_css'); ?>
-<style>
     .product-item .badge {
         background-color: var(--accent-color);
         color: var(--contrast-color);
@@ -223,12 +220,14 @@
         background-color: var(--accent-color);
     }
 
-    .pagination .page-link.active, .active > .page-link {
+    .pagination .page-link.active,
+    .active>.page-link {
         color: var(--contrast-color);
         background-color: var(--accent-color);
     }
 
-    .pagination .page-link.disabled, .disabled > .page-link {
+    .pagination .page-link.disabled,
+    .disabled>.page-link {
         color: var(--contrast-color);
         background-color: var(--default-color);
         border-color: var(--default-color);

@@ -55,7 +55,7 @@
                         Dasbor
                     </a>
                 <?php elseif (in_groups('user')) : ?>
-                    <a href="<?= route_to('landing.cart') ?>" class="header-cart-button">
+                    <a href="<?= route_to('landing.cart.index') ?>" class="header-cart-button">
                         <i class="bi-cart-fill me-1"></i>
                         <span
                             class="badge text-white ms-1 rounded-pill">0</span>

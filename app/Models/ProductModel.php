@@ -39,6 +39,7 @@ class ProductModel extends Model
 
     // Validation
     protected $validationRules      = [
+        'category_id' => 'required',
         'name' => 'required|min_length[3]|max_length[255]',
         'slug' => 'required',
         'price' => 'required|integer'
@@ -52,6 +53,9 @@ class ProductModel extends Model
         'price' => [
             'required' => 'Harga harus diisi!',
             'integer' => 'Harga tidak boleh selain dari angka!',
+        ],
+        'category_id' => [
+            'required' => 'Kategori harus diisi!',
         ]
     ];
     protected $skipValidation       = false;

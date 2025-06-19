@@ -10,6 +10,22 @@ $routes->get('/', 'Landing', ['as' => 'landing.index']);
 $routes->get('shop', 'Landing::shop', ['as' => 'landing.shop']);
 $routes->get('shop/show/(:segment)', 'Landing::showShop/$1', ['as' => 'landing.shop.show']);
 
+$routes->group('cart', [
+    'filter' => 'login',
+    'filter' => 'role:user',
+], static function ($routes) {
+    $routes->get('/', 'Landing::cart', ['as' => 'landing.cart.index']);
+    $routes->post('add', 'Landing::addToCart', ['as' => 'landing.cart.add']);
+    $routes->post('increase/(:num)', 'Landing::increaseCartQuantity/$1', ['as' => 'landing.cart.increase']);
+    $routes->post('decrease/(:num)', 'Landing::decreaseCartQuantity/$1', ['as' => 'landing.cart.decrease']);
+    $routes->post('(:num)', 'Landing::destroyCart/$1', ['as' => 'landing.cart.destroy']);
+    $routes->get('payment/(:num)', 'Landing::payment/$1', ['as' => 'landing.cart.payment.index']);
+    $routes->post('payment/create', 'Landing::paymentCreate', ['as' => 'landing.cart.payment.create']);
+    $routes->post('payment/upload', 'Landing::paymentUpload', ['as' => 'landing.cart.payment.upload']);
+    $routes->post('payment/update', 'Landing::paymentUpdate', ['as' => 'landing.cart.payment.update']);
+    $routes->get('payment/done', 'Landing::paymentDone', ['as' => 'landing.cart.payment.done']);
+});
+
 $routes->group('dashboard', ['filter' => 'login'], static function ($routes) {
 
     // Admin Dashboard
@@ -17,7 +33,7 @@ $routes->group('dashboard', ['filter' => 'login'], static function ($routes) {
         $routes->get('', 'Admin', ['as' => 'admin.index']);
 
         $routes->get('products', 'Admin::products', ['as' => 'admin.products.index']);
-        $routes->get('products/create', 'Admin::createProduct', ['as' => 'admin.products.create']);
+        $routes->get('products/create', 'Admin::createProduct', ['as' => 'admin.prodducts.create']);
         $routes->post('products/store', 'Admin::storeProduct', ['as' => 'admin.products.store']);
         $routes->get('products/edit/(:segment)', 'Admin::editProduct/$1', ['as' => 'admin.products.edit']);
         $routes->post('products/update/(:num)', 'Admin::updateProduct/$1', ['as' => 'admin.products.update']);

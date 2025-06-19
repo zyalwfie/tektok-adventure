@@ -23,7 +23,10 @@ Tektok Adventure | Lupa Sandi
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 py-8 fs-4 rounded-2">Kirim Instruksi</button>
+            <div class="d-flex gap-2 align-items-center">
+                <a href="<?= url_to('login') ?>" class="btn btn-secondary w-100 py-8 fs-4 rounded-2">Kembali</a>
+                <button type="submit" class="btn btn-primary w-100 py-8 fs-4 rounded-2">Kirim Instruksi</button>
+            </div>
             <?= form_close() ?>
         </div>
     </div>
