@@ -124,3 +124,7 @@ _modules/*
 
 /results/
 /phpunit*.xml
+
+# Image
+public/img/product/uploads/*
+!public/img/product/uploads/default.svg

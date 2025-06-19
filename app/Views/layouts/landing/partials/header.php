@@ -7,22 +7,41 @@
 
         <div class="d-flex gap-3 align-items-center">
             <nav id="navmenu" class="navmenu">
-                <ul>
-                    <li><a href="#hero" class="active">Beranda</a></li>
-                    <li><a href="#about">Tentang</a></li>
-                    <li><a href="#why-us">Kenapa Kami</a></li>
-                    <li><a href="#services">Layanan</a></li>
-                    <li><a href="#products">Produk</a></li>
-                    <li><a href="<?= route_to('landing.shop') ?>">Belanja</a></li>
-                    <li><a href="#contact">Kontak</a></li>
-                    <?php if (logged_in() && in_groups('user')) : ?>
-                        <li><a href="<?= route_to('user.index') ?>">Dasbor</a></li>
-                        <li><a href="<?= route_to('logout') ?>">Keluar</a></li>
-                    <?php elseif (logged_in() && in_groups('admin')) : ?>
-                        <li><a href="<?= route_to('admin.index') ?>">Dasbor</a></li>
-                        <li><a href="<?= route_to('logout') ?>">Keluar</a></li>
-                    <?php endif; ?>
-                </ul>
+                <?php if (uri_string() === 'shop') : ?>
+                    <ul>
+                        <li><a href="<?= base_url('#hero') ?>">Beranda</a></li>
+                        <li><a href="<?= base_url('#about') ?>">Tentang</a></li>
+                        <li><a href="<?= base_url('#why-us') ?>">Kenapa Kami</a></li>
+                        <li><a href="<?= base_url('#services') ?>">Layanan</a></li>
+                        <li><a href="<?= base_url('#products') ?>">Produk</a></li>
+                        <li><a href="<?= route_to('landing.shop') ?>" class="active">Belanja</a></li>
+                        <li><a href="<?= base_url('#contact') ?>">Kontak</a></li>
+                        <?php if (logged_in() && in_groups('user')) : ?>
+                            <li><a href="<?= route_to('user.index') ?>">Dasbor</a></li>
+                            <li><a href="<?= route_to('logout') ?>">Keluar</a></li>
+                        <?php elseif (logged_in() && in_groups('admin')) : ?>
+                            <li><a href="<?= route_to('admin.index') ?>">Dasbor</a></li>
+                            <li><a href="<?= route_to('logout') ?>">Keluar</a></li>
+                        <?php endif; ?>
+                    </ul>
+                <?php else : ?>
+                    <ul>
+                        <li><a href="#hero">Beranda</a></li>
+                        <li><a href="#about">Tentang</a></li>
+                        <li><a href="#why-us">Kenapa Kami</a></li>
+                        <li><a href="#services">Layanan</a></li>
+                        <li><a href="#products">Produk</a></li>
+                        <li><a href="<?= route_to('landing.shop') ?>">Belanja</a></li>
+                        <li><a href="#contact">Kontak</a></li>
+                        <?php if (logged_in() && in_groups('user')) : ?>
+                            <li><a href="<?= route_to('user.index') ?>">Dasbor</a></li>
+                            <li><a href="<?= route_to('logout') ?>">Keluar</a></li>
+                        <?php elseif (logged_in() && in_groups('admin')) : ?>
+                            <li><a href="<?= route_to('admin.index') ?>">Dasbor</a></li>
+                            <li><a href="<?= route_to('logout') ?>">Keluar</a></li>
+                        <?php endif; ?>
+                    </ul>
+                <?php endif; ?>
                 <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
             </nav>
 

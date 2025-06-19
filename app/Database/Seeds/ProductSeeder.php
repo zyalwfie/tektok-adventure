@@ -10,7 +10,7 @@ class ProductSeeder extends Seeder
     public function run()
     {
         $faker = Factory::create('id_ID');
-        $categories = [1, 2, 3, 4]; // Sesuaikan dengan ID kategori yang ada
+        $categories = [1, 2, 3, 4];
 
         $products = [];
         $productNames = [
@@ -32,7 +32,7 @@ class ProductSeeder extends Seeder
                 'slug'        => strtolower(str_replace(' ', '-', $productName)) . '-' . $faker->unique()->numberBetween(100, 999),
                 'description' => $this->generateDescription($productName, $faker),
                 'price'       => $faker->numberBetween(150000, 3000000),
-                'discount'    => $faker->boolean(40) ? $faker->numberBetween(5, 70) : 0, // Diskon 5-70% (40% produk dapat diskon)
+                'discount'    => $faker->boolean(40) ? $faker->numberBetween(5, 70) : 0,
                 'stock'       => $faker->numberBetween(0, 50),
                 'created_at'  => date('Y-m-d H:i:s', $faker->unixTime()),
                 'updated_at'  => date('Y-m-d H:i:s')

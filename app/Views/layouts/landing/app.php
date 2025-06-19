@@ -32,6 +32,7 @@
     <div id="preloader"></div>
 
     <?= $this->include('layouts/landing/partials/scripts'); ?>
+    <?= $this->renderSection('foot_js'); ?>
 
 </body>
 

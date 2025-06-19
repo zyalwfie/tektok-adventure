@@ -7,7 +7,7 @@
 <?= $this->section('content'); ?>
 <section id="hero" class="hero section">
 
-    <img src="<?= base_url() ?>img/hero-bg.jpg" alt="" data-aos="fade-in" style="filter: brightness(0.8);">
+    <img src="<?= base_url() ?>img/hero-bg.jpg" alt="Two People Sitting on a Bench" data-aos="fade-in" style="filter: brightness(0.8);">
 
     <div class="container text-center" data-aos="fade-up" data-aos-delay="100">
         <div class="row justify-content-center">
@@ -212,133 +212,61 @@
 
     <div class="container">
         <div class="row g-4 row-cols-2 row-cols-md-3 justify-content-center" data-aos="fade-up" data-aos-delay="100">
-            <div class="product-item col mb-5">
-                <div class="card h-100">
-                    <!-- Product image-->
-                    <img
-                        class="card-img-top"
-                        src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg"
-                        alt="..." />
-                    <!-- Product details-->
-                    <div class="card-body p-4">
-                        <div class="text-center">
-                            <!-- Product name-->
-                            <h5 class="fw-bolder">Fancy Product</h5>
-                            <!-- Product price-->
-                            $40.00 - $80.00
-                        </div>
-                    </div>
-                    <!-- Product actions-->
-                    <div
-                        class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                        <div class="d-flex flex-column flex-md-row gap-2 align-items-center justify-content-center">
-                            <a
-                                class="btn cart-btn mt-auto"
-                                href="#">
-                                Lihat detail
-                            </a>
-                            <a
-                                class="btn cart-btn mt-auto"
-                                href="#">
-                                <i class="bi bi-cart-plus-fill"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="product-item col mb-5" data-aos="fade-up" data-aos-delay="200">
-                <div class="card h-100">
-                    <!-- Sale badge-->
-                    <div
-                        class="badge text-white position-absolute"
-                        style="top: 0.5rem; right: 0.5rem">
-                        Promo
-                    </div>
-                    <!-- Product image-->
-                    <img
-                        class="card-img-top"
-                        src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg"
-                        alt="..." />
-                    <!-- Product details-->
-                    <div class="card-body p-4">
-                        <div class="text-center">
-                            <!-- Product name-->
-                            <h5 class="fw-bolder">Special Item</h5>
-                            <!-- Product reviews-->
+            <?php foreach ($products as $product) : ?>
+                <div class="product-item">
+                    <div class="card h-100">
+                        <?php if ($product['discount']) : ?>
+                            <!-- Sale badge-->
                             <div
-                                class="d-flex justify-content-center small text-warning mb-2">
-                                <div class="bi-star-fill"></div>
-                                <div class="bi-star-fill"></div>
-                                <div class="bi-star-fill"></div>
-                                <div class="bi-star-fill"></div>
-                                <div class="bi-star-fill"></div>
+                                class="badge position-absolute"
+                                style="top: 0.5rem; right: 0.5rem">
+                                Promo
                             </div>
-                            <!-- Product price-->
-                            <span
-                                class="text-muted text-decoration-line-through">$20.00</span>
-                            $18.00
+                        <?php endif; ?>
+                        <!-- Product image-->
+                        <img
+                            class="card-img-top"
+                            src="<?= base_url('img/product/') . $product['image'] ?>"
+                            alt="<?= $product['name'] ?>" />
+                        <!-- Product details-->
+                        <div class="card-body p-4">
+                            <div class="text-center">
+                                <!-- Product name-->
+                                <h5 class="fw-bolder"><?= $product['name'] ?></h5>
+                                <?php if ($product['discount']) : ?>
+                                    <!-- Product real price -->
+                                    <small class="text-decoration-line-through me-1">Rp<?= number_format($product['price'], '0', '.', ',') ?></small>
+                                    <!-- Product discount price -->
+                                    <?php $discountPrice = $product['discount'] / 100 * $product['price'] ?>
+                                    <span>Rp<?= number_format($discountPrice, '0', '.', ',') ?></span>
+                                <?php else : ?>
+                                    <!-- Product price -->
+                                    <span>Rp<?= number_format($product['price'], '0', '.', ',') ?></span>
+                                <?php endif; ?>
+                            </div>
                         </div>
-                    </div>
-                    <!-- Product actions-->
-                    <div
-                        class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                        <div class="d-flex flex-column flex-md-row gap-2 align-items-center justify-content-center">
-                            <a
-                                class="btn cart-btn mt-auto"
-                                href="#">
-                                Lihat detail
-                            </a>
-                            <a
-                                class="btn cart-btn mt-auto"
-                                href="#">
-                                <i class="bi bi-cart-plus-fill"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="product-item col mb-5" data-aos="fade-up" data-aos-delay="300">
-                <div class="card h-100">
-                    <!-- Sale badge-->
-                    <div
-                        class="badge text-white position-absolute"
-                        style="top: 0.5rem; right: 0.5rem">
-                        Promo
-                    </div>
-                    <!-- Product image-->
-                    <img
-                        class="card-img-top"
-                        src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg"
-                        alt="..." />
-                    <!-- Product details-->
-                    <div class="card-body p-4">
-                        <div class="text-center">
-                            <!-- Product name-->
-                            <h5 class="fw-bolder">Sale Item</h5>
-                            <!-- Product price-->
-                            <span
-                                class="text-muted text-decoration-line-through">$50.00</span>
-                            $25.00
-                        </div>
-                    </div>
-                    <!-- Product actions-->
-                    <div
-                        class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                        <div class="d-flex flex-column flex-md-row gap-2 align-items-center justify-content-center">
-                            <a
-                                class="btn cart-btn mt-auto"
-                                href="#">
-                                Lihat detail
-                            </a>
-                            <a
-                                class="btn cart-btn mt-auto"
-                                href="#">
-                                <i class="bi bi-cart-plus-fill"></i>
-                            </a>
+                        <!-- Product actions-->
+                        <div
+                            class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                            <div class="d-flex flex-column flex-md-row gap-2 align-items-center justify-content-center">
+                                <a
+                                    class="btn cart-btn mt-auto"
+                                    href="<?= route_to('landing.shop.show', $product['slug']) ?>">
+                                    Lihat detail
+                                </a>
+                                <?php if (logged_in()) : ?>
+                                    <?= form_open(route_to('landing.shop.add')) ?>
+                                    <?= csrf_field() ?>
+                                    <button type="submit" class="btn cart-btn">
+                                        <i class="bi bi-cart-plus-fill"></i>
+                                    </button>
+                                    <?= form_close() ?>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            <?php endforeach; ?>
         </div>
     </div>
 </section>
