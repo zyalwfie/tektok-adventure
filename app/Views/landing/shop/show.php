@@ -15,7 +15,7 @@
             <div class="col-lg-8">
                 <h2 style="text-shadow: 1px 1px 2px #000000;" class="text-white display-4"><?= $product['name'] ?></h2>
                 <p style="text-shadow: 1px 1px 2px #000000;" class="text-white">Lihat di bawah untuk detail produk yang kamu pilih</p>
-                <a href="<?= route_to('landing.shop') ?>" class="btn-get-started">Kembali</a>
+                <a href="<?= route_to('landing.shop.index') ?>" class="btn-get-started">Kembali</a>
             </div>
         </div>
     </div>
@@ -25,7 +25,7 @@
 <section class="py-5">
     <div class="container px-4 px-lg-5 my-5">
         <div class="row gx-4 gx-lg-5 align-items-center">
-            <div class="col-md-6"><img class="card-img-top mb-5 mb-md-0" src="<?= base_url('img/products/uploads/') . $product['image'] ?>" alt="<?= $product['image'] ?>" /></div>
+            <div class="col-md-6"><img class="card-img-top mb-5 mb-md-0" src="<?= base_url('img/product/uploads/') . $product['image'] ?>" alt="<?= $product['image'] ?>" /></div>
             <div class="col-md-6">
                 <div class="small mb-1">Detail Produk</div>
                 <h1 class="display-5 fw-bolder"><?= $product['name'] ?></h1>
@@ -34,20 +34,24 @@
                         <?php $discountPrice = $product['discount'] / 100 * $product['price'] ?>
                         <span class="text-decoration-line-through">Rp<?= number_format($product['price'], '0', '.', ',') ?></span>
                         <span>Rp<?= number_format($discountPrice, '0', '.', ',') ?></span>
+                    <?php else : ?>
+                        <span>Rp<?= number_format($product['price'], '0', '.', ',') ?></span>
                     <?php endif; ?>
-                    <span><?= $product['discount'] ?></span>
+                    <span>/</span>
+                    <small>Sisa stok <?= $product['stock'] ?></small>
                 </div>
                 <p class="lead">
                     <?= $product['description'] ?>
                 </p>
                 <?php if (logged_in()) : ?>
-                    <div class="d-flex">
-                        <input class="form-control text-center me-3" id="inputQuantity" type="num" value="1" style="max-width: 3rem" />
-                        <button class="btn btn-outline-dark flex-shrink-0" type="button">
+                    <form action="<?= route_to('landing.cart.add') ?>" method="post" class="d-flex">
+                        <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
+                        <input class="form-control text-center me-3" id="inputQuantity" type="num" value="1" style="max-width: 3rem" name="quantity" />
+                        <button class="btn cart-btn flex-shrink-0" type="submit">
                             <i class="bi-cart-fill me-1"></i>
-                            Add to cart
+                            Tambah
                         </button>
-                    </div>
+                    </form>
                 <?php endif; ?>
             </div>
         </div>
@@ -73,7 +77,7 @@
                         <!-- Product image-->
                         <img
                             class="card-img-top"
-                            src="<?= base_url('img/product/uploads') . $product['image'] ?>"
+                            src="<?= base_url('img/product/uploads/') . $product['image'] ?>"
                             alt="<?= $product['name'] ?>" />
                         <!-- Product details-->
                         <div class="card-body p-4">
@@ -129,13 +133,13 @@
         border-color: var(--accent-color);
     }
 
-    .product-item .cart-btn {
+    .cart-btn {
         border: 1px solid var(--accent-color);
         transition: ease-in-out .3s;
         color: var(--accent-color);
     }
 
-    .product-item .cart-btn:hover {
+    .cart-btn:hover {
         color: var(--contrast-color) !important;
         background-color: var(--accent-color) !important;
     }
@@ -143,6 +147,15 @@
     .product-item .badge {
         background-color: var(--accent-color);
         color: var(--contrast-color);
+    }
+
+    .form-control:active,
+    .form-control:focus {
+        outline: none;
+        -webkit-box-shadow: none;
+        box-shadow: none;
+        border-color: var(--accent-color) !important;
+        box-shadow: 0 0 0 0.25rem rgba(253, 104, 14, .25) !important;
     }
 </style>
 <?= $this->endSection(); ?>

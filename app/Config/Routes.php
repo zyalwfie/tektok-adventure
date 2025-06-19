@@ -7,7 +7,7 @@ use CodeIgniter\Router\RouteCollection;
  */
 
 $routes->get('/', 'Landing', ['as' => 'landing.index']);
-$routes->get('shop', 'Landing::shop', ['as' => 'landing.shop']);
+$routes->get('shop', 'Landing::shop', ['as' => 'landing.shop.index']);
 $routes->get('shop/show/(:segment)', 'Landing::showShop/$1', ['as' => 'landing.shop.show']);
 
 $routes->group('cart', [

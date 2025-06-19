@@ -31,7 +31,7 @@
                         <li><a href="#why-us">Kenapa Kami</a></li>
                         <li><a href="#services">Layanan</a></li>
                         <li><a href="#products">Produk</a></li>
-                        <li><a href="<?= route_to('landing.shop') ?>">Belanja</a></li>
+                        <li><a href="<?= route_to('landing.shop.index') ?>">Belanja</a></li>
                         <li><a href="#contact">Kontak</a></li>
                         <?php if (logged_in() && in_groups('user')) : ?>
                             <li><a href="<?= route_to('user.index') ?>">Dasbor</a></li>
@@ -55,7 +55,7 @@
                         Dasbor
                     </a>
                 <?php elseif (in_groups('user')) : ?>
-                    <a href="<?= route_to('landing.cart.index') ?>" class="header-cart-button">
+                    <a href="<?= route_to('landing.cart.index') ?>" class="header-cart-button text-decoration-none">
                         <i class="bi-cart-fill me-1"></i>
                         <span
                             class="badge text-white ms-1 rounded-pill">0</span>
