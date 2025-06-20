@@ -188,6 +188,7 @@
                                 <?php endforeach; ?>
                                 <tr>
                                     <td class="text-black font-weight-bold"><strong>Total Pesanan</strong></td>
+                                    <td></td>
                                     <td class="text-black font-weight-bold" colspan="2"><strong>Rp<?= number_format($cartsTotalAmount, '0', '.', ',') ?></strong></td>
                                 </tr>
                             </tbody>

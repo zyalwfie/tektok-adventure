@@ -21,10 +21,32 @@ class User extends BaseController
     
     public function index()
     {
+        $this->orderBuilder
+            ->select('SUM(total_price) AS total_spent')
+            ->where(['status' => 'berhasil', 'user_id' => user()->id]);
+        $query = $this->orderBuilder->get();
+        $totalEarning = $query->getRow();
+
+        $completedOrdersCount = $this->orderModel->where(['status' => 'berhasil', 'user_id' => user()->id])->countAllResults();
+        $pendingOrdersCount = $this->orderModel->where(['status' => 'tertunda', 'user_id' => user()->id])->countAllResults();
+        $totalEarningAmount = $totalEarning->total_spent ? $totalEarning->total_spent : 0;
+
+        $query = $this->orderBuilder
+            ->select('recipient_name, recipient_phone, avatar, orders.status as order_status, total_price')
+            ->join('users', 'orders.user_id = users.id')
+            ->where('orders.user_id', user()->id)
+            ->get(4);
+        $orders = $query->getResult();
+
         $data = [
-            'pageTitle' => 'Tektok Adventure | Dasbor Pengguna',
+            'pageTitle' => 'Dashboard | Nuansa',
+            'totalEarning' => $totalEarningAmount,
+            'completedOrdersCount' => $completedOrdersCount,
+            'pendingOrdersCount' => $pendingOrdersCount,
+            'usersAmount' => $this->userModel->countAllResults(),
+            'orders' => $orders
         ];
-        
+
         return view('dashboard/user/index', $data);
     }
 

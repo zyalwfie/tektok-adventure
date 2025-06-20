@@ -27,9 +27,30 @@ class Admin extends BaseController
 
     public function index()
     {
+        $this->orderBuilder
+            ->select('SUM(total_price) AS total_spent')
+            ->where('status', 'berhasil');
+        $query = $this->orderBuilder->get();
+        $totalEarning = $query->getRow();
+
+        $completedOrdersCount = $this->orderModel->where('status', 'berhasil')->countAllResults();
+        $pendingOrdersCount = $this->orderModel->where('status', 'tertunda')->countAllResults();
+        $totalEarningAmount = $totalEarning->total_spent ? $totalEarning->total_spent : 0;
+
+        $query = $this->orderBuilder
+            ->select('recipient_name, recipient_phone, avatar, orders.status as order_status, total_price')
+            ->join('users', 'orders.user_id = users.id')
+            ->get(4);
+        $orders = $query->getResult();
+
         $data = [
-            'pageTitle' => 'Tektok Adventure | Dasbor Admin',
-        ];
+            'pageTitle' => 'Dashboard | Nuansa',
+            'totalEarning' => $totalEarningAmount,
+            'completedOrdersCount' => $completedOrdersCount,
+            'pendingOrdersCount' => $pendingOrdersCount,
+            'usersAmount' => $this->userModel->countAllResults(),
+            'orders' => $orders
+        ];        
 
         return view('dashboard/admin/index', $data);
     }

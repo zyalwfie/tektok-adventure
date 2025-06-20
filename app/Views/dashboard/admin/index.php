@@ -24,7 +24,7 @@
                         <span class="text-muted fs-3">Total rupiah pengguna</span>
                     </div>
                     <div class="ms-auto">
-                        <span class="badge bg-info-subtle text-muted">Rp80,000,000</span>
+                        <span class="badge bg-info-subtle text-muted">Rp<?= number_format($totalEarning, '0', ',', '.') ?></span>
                     </div>
                 </div>
                 <div class="py-3 d-flex align-items-center">
@@ -36,7 +36,7 @@
                         <span class="text-muted fs-3">Status pesanan yang masih tertunda</span>
                     </div>
                     <div class="ms-auto">
-                        <span class="badge bg-warning-subtle text-muted">18</span>
+                        <span class="badge bg-warning-subtle text-muted"><?= $pendingOrdersCount ?></span>
                     </div>
                 </div>
                 <div class="py-3 d-flex align-items-center">
@@ -48,7 +48,7 @@
                         <span class="text-muted fs-3">Status pesanan yang sudah berhasil</span>
                     </div>
                     <div class="ms-auto">
-                        <span class="badge bg-success-subtle text-muted">5</span>
+                        <span class="badge bg-success-subtle text-muted"><?= $completedOrdersCount ?></span>
                     </div>
                 </div>
                 <div class="pt-3 mb-7 d-flex align-items-center">
@@ -60,7 +60,7 @@
                         <span class="text-muted fs-3">Pengguna yang sudah daftar di Tektok Adventure</span>
                     </div>
                     <div class="ms-auto">
-                        <span class="badge bg-info-subtle text-muted">20</span>
+                        <span class="badge bg-info-subtle text-muted"><?= $usersAmount ?></span>
                     </div>
                 </div>
             </div>
@@ -99,37 +99,50 @@
                         <thead>
                             <tr>
                                 <th scope="col" class="px-0 text-muted">
-                                    Pemesanan
+                                    Pemesan
                                 </th>
-                                <th scope="col" class="px-0 text-muted">Produk</th>
                                 <th scope="col" class="px-0 text-muted">
                                     Status
                                 </th>
                                 <th scope="col" class="px-0 text-muted text-end">
-                                    Harga
+                                    Total Pembayaran
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td class="px-0">
-                                    <div class="d-flex align-items-center">
-                                        <img src="<?= base_url('img/profile/user-2.svg') ?>" class="rounded-circle" width="40"
-                                            alt="flexy" />
-                                        <div class="ms-3">
-                                            <h6 class="mb-0 fw-bolder">Sunil Joshi</h6>
-                                            <span class="text-muted">Web Designer</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-0">Elite Admin</td>
-                                <td class="px-0">
-                                    <span class="badge bg-info">Low</span>
-                                </td>
-                                <td class="px-0 text-dark fw-medium text-end">
-                                    $3.9K
-                                </td>
-                            </tr>
+                            <?php if (!$orders) : ?>
+                                <tr>
+                                    <td colspan="4">Belum ada pesanan yang dibuat</td>
+                                </tr>
+                            <?php else : ?>
+                                <?php foreach ($orders as $order) : ?>
+                                    <tr>
+                                        <td class="px-0">
+                                            <div class="d-flex align-items-center">
+                                                <img src="<?= base_url('img/profile/') . $order->avatar ?>" class="rounded-circle" width="40"
+                                                    alt="flexy" />
+                                                <div class="ms-3">
+                                                    <h6 class="mb-0 fw-bolder"><?= $order->recipient_name ?></h6>
+                                                    <span class="text-muted"><?= $order->recipient_phone ?></span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-0">
+                                            <span
+                                                <?php if ($order->order_status === 'berhasil') : ?>
+                                                class="badge bg-success"
+                                                <?php elseif ($order->order_status === 'tertunda') : ?>
+                                                class="badge bg-warning"
+                                                <?php else : ?>
+                                                class="badge bg-danger"
+                                                <?php endif; ?>><?= $order->order_status ?></span>
+                                        </td>
+                                        <td class="px-0 text-dark fw-medium text-end">
+                                            Rp<?= number_format($order->total_price, '0', '.', ',') ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
