@@ -28,9 +28,7 @@
 
             <div class="body-wrapper-inner">
                 <div class="container-fluid">
-                    <div class="row">
-                        <?= $this->renderSection('content'); ?>
-                    </div>
+                    <?= $this->renderSection('content'); ?>
 
                     <?= $this->include('layouts/dashboard/partials/footer'); ?>
 

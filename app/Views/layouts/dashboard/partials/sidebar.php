@@ -64,9 +64,10 @@
                         </a>
                     </li>
                 <?php endif; ?>
+
                 <li class="sidebar-item">
-                    <a class="sidebar-link justify-content-between"
-                        href="#" aria-expanded="false">
+                    <a class="sidebar-link justify-content-between <?= (url_is('dashboard/admin/orders*') || url_is('dashboard/user/orders*')) ? 'active' : '' ?>"
+                        href="<?= in_groups('admin') ? route_to('admin.orders.index') : route_to('user.orders.index') ?>" aria-expanded="false">
                         <div class="d-flex align-items-center gap-3">
                             <span class="d-flex">
                                 <i class="ti ti-shopping-cart"></i>

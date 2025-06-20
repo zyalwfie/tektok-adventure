@@ -5,11 +5,14 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use App\Models\CartModel;
 use App\Models\CategoryModel;
+use App\Models\OrderItemModel;
+use App\Models\OrderModel;
+use App\Models\PaymentModel;
 use App\Models\ProductModel;
 
 class Landing extends BaseController
 {
-    protected $productModel, $categoryModel, $cartModel, $cartsTotalAmount, $db;
+    protected $productModel, $categoryModel, $cartModel, $cartsTotalAmount, $cartsTotalCount, $orderModel, $orderItemModel, $paymentModel, $db;
 
 
     public function __construct()
@@ -18,6 +21,9 @@ class Landing extends BaseController
         $this->productModel = new ProductModel();
         $this->categoryModel = new CategoryModel();
         $this->cartModel = new CartModel();
+        $this->orderModel = new OrderModel();
+        $this->orderItemModel = new OrderItemModel();
+        $this->paymentModel = new PaymentModel();
     }
 
 
@@ -26,6 +32,7 @@ class Landing extends BaseController
         $data = [
             'pageTitle' => 'Tektok Adventure',
             'products' => $this->productModel->where('is_featured', 1)->limit(3)->find(),
+            'cartsTotalCount' => ((!logged_in()) ? 0 : $this->cartModel->where('user_id', user()->id)->countAllResults())
         ];
 
         return view('landing/index', $data);
@@ -37,6 +44,7 @@ class Landing extends BaseController
             'pageTitle' => 'Tektok Adventure | Belanja',
             'products' => $this->productModel->findAll(),
             'categories' => $this->categoryModel->findAll(),
+            'cartsTotalCount' => ((!logged_in()) ? 0 : $this->cartModel->where('user_id', user()->id)->countAllResults())
         ];
 
         return view('landing/shop/index', $data);
@@ -54,7 +62,8 @@ class Landing extends BaseController
         $data = [
             'pageTitle' => 'Tektok Adventure | ' . $product['name'],
             'product' => $product,
-            'relatedProducts' => $relatedProducts
+            'relatedProducts' => $relatedProducts,
+            'cartsTotalCount' => ((!logged_in()) ? 0 : $this->cartModel->where('user_id', user()->id)->countAllResults())
         ];
 
         return view('landing/shop/show', $data);
@@ -78,6 +87,7 @@ class Landing extends BaseController
             'pageTitle' => 'Tektok Adventure | Keranjang',
             'carts' => $carts,
             'cartsTotalAmount' => $this->cartsTotalAmount,
+            'cartsTotalCount' => ((!logged_in()) ? 0 : $this->cartModel->where('user_id', user()->id)->countAllResults())
         ];
 
         return view('landing/cart', $data);
@@ -86,6 +96,11 @@ class Landing extends BaseController
     public function addToCart()
     {
         $quantity = $this->request->getPost('quantity') ?? 1;
+
+        if (!preg_match('/^\d+$/', $quantity)) {
+            return redirect()->back()->withInput()->with('wrong_type_of', 'Kuantitas yang kamu masukkan harus berupa angka!');
+        }
+
         $productId = $this->request->getPost('product_id');
         $product = $this->productModel->find($productId);
         $cart = $this->cartModel->where(['product_id' => $productId, 'user_id' => user()->id])->first();
@@ -122,12 +137,12 @@ class Landing extends BaseController
         if (!$cart || $cart['user_id'] !== user()->id) {
             return redirect()->route('landing.cart.index');
         }
-        
+
         $product = $this->productModel->find($cart['product_id']);
         if (!$product) {
             return redirect()->route('landing.cart.index');
         }
-        
+
         if ($currentCartQty > $product['stock']) {
             return redirect()->back()->with('not_in_stock', 'Stok produk tidak mencukupi!');
         } else {
@@ -140,7 +155,7 @@ class Landing extends BaseController
             return redirect()->back()->with('success', 'Kuantitas produk berhasil ditambahkan!');
         }
     }
-    
+
     public function decreaseCartQuantity($cartId)
     {
         $cart = $this->cartModel->find($cartId);
@@ -169,5 +184,159 @@ class Landing extends BaseController
             $this->cartModel->delete($cartId);
         }
         return redirect()->route('landing.cart.index');
+    }
+
+    public function payment($orderId)
+    {
+        $order = $this->orderModel->where('id', $orderId)->first();
+        $payment = $this->paymentModel->where('order_id', $orderId)->first();
+
+        if (!$order) {
+            return redirect()->back()->with('no_order', 'Pesanan belum dibuat');
+        }
+
+        if ($payment && $payment['proof_of_payment']) {
+            return redirect()->route('landing.cart.payment.done');
+        }
+
+        $data = [
+            'pageTitle' => 'Tektok Adventure | Pembayaran',
+            'cartsTotalCount' => ((!logged_in()) ? 0 : $this->cartModel->where('user_id', user()->id)->countAllResults()),
+            'order_id' => $orderId
+        ];
+
+        return view('landing/payment', $data);
+    }
+
+    public function paymentCreate()
+    {
+        $carts = $this->cartModel->where('user_id', user()->id)->findAll();
+        $postData = $this->request->getPost();
+
+        if (!$this->validateData($postData, $this->orderModel->getValidationRules(), $this->orderModel->validationMessages)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        } elseif (!$carts) {
+            return redirect()->back()->withInput()->with('empty_carts', 'Tidak ada apa-apa di dalam keranjang!');
+        }
+
+        $postData['user_id'] = user()->id;
+        $this->orderModel->save($postData);
+        $order = $this->orderModel->orderBy('created_at', 'DESC')->first();
+
+        if (isset($postData['product_id'], $postData['quantity'])) {
+            foreach ($postData['product_id'] as $idx => $productId) {
+                $quantity = isset($postData['quantity'][$idx]) ? $postData['quantity'][$idx] : 1;
+                $this->orderItemModel->save([
+                    'order_id' => $order['id'],
+                    'product_id' => $productId,
+                    'user_id' => user()->id,
+                    'quantity' => $quantity
+                ]);
+            }
+        }
+
+        $this->cartModel->where('user_id', user()->id)->delete();
+        $paymentResult = $this->paymentModel->save([
+            'order_id' => $order['id'],
+        ]);
+
+        if ($paymentResult) {
+            return redirect()->route('landing.cart.payment.index', [$order['id']])->with('success', 'Pesanan telah dibuat!');
+        } else {
+            return redirect()->back()->with('failed', 'Pesanan gagal dibuat!');
+        }
+    }
+
+    public function paymentUpload()
+    {
+        $file = $this->request->getFile('proof_of_payment');
+        $orderId = $this->request->getPost('order_id');
+        $uriString = $this->request->getPost('uri_string');
+        $errors = [];
+
+        if ($file->isValid()) {
+            $mimeType = $file->getMimeType();
+            $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+            if (!in_array($mimeType, $allowedTypes)) {
+                $errors['proof_of_payment'] = 'File harus berupa gambar (jpg, jpeg, png) atau PDF.';
+            } elseif ($file->getSize() > 2097152) {
+                $errors['proof_of_payment'] = 'Ukuran file maksimal 2MB.';
+            }
+        } else {
+            $errors['proof_of_payment'] = 'Bukti pembayaran harus diunggah!';
+        }
+
+        if (!empty($errors)) {
+            return redirect()->back()->withInput()->with('errors', $errors);
+        }
+
+        $newName = $file->getRandomName();
+        $file->move(FCPATH . 'img/product/proof', $newName);
+
+        $payment = $this->paymentModel->where('order_id', $orderId)->first();
+        if ($payment) {
+            $this->paymentModel->update($payment['id'], [
+                'proof_of_payment' => $newName
+            ]);
+        }
+
+        if ($uriString === 'dashboard/user/orders/show/' . $orderId) {
+            return redirect()->back()->with('proofed', 'File bukti berhasil diunggah!');
+        }
+
+        return redirect()->route('landing.cart.payment.done');
+    }
+
+    public function paymentUpdate()
+    {
+        dd($this->request->getFile('proof_of_payment'));
+        
+        $file = $this->request->getFile('proof_of_payment');
+        $orderId = $this->request->getPost('order_id');
+        $errors = [];
+
+        if ($file->isValid()) {
+            $mimeType = $file->getMimeType();
+            $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+            if (!in_array($mimeType, $allowedTypes)) {
+                $errors['proof_of_payment'] = 'File harus berupa gambar (jpg, jpeg, png) atau PDF.';
+            } elseif ($file->getSize() > 2097152) {
+                $errors['proof_of_payment'] = 'Ukuran file maksimal 2MB.';
+            }
+        } else {
+            $errors['proof_of_payment'] = 'Bukti pembayaran harus diunggah!';
+        }
+
+        if (!empty($errors)) {
+            return redirect()->back()->withInput()->with('errors', $errors);
+        }
+
+        $newName = $file->getRandomName();
+        $file->move(FCPATH . 'img/product/proof', $newName);
+
+        $payment = $this->paymentModel->where('order_id', $orderId)->first();
+        if ($payment) {
+            if (!empty($payment['proof_of_payment'])) {
+                $oldPath = FCPATH . 'img/product/proof/' . $payment['proof_of_payment'];
+                if (file_exists($oldPath)) {
+                    @unlink($oldPath);
+                }
+            }
+            $this->paymentModel->update($payment['id'], [
+                'proof_of_payment' => $newName
+            ]);
+        }
+
+        return redirect()->back()->with('proofed', 'File bukti berhasil diperbarui!');
+    }
+
+    public function paymentDone()
+    {
+        $data = [
+            'pageTitle' => 'Nuansa | Pembayaran',
+            'cartsTotalCount' => ((!logged_in()) ? 0 : $this->cartModel->where('user_id', user()->id)->countAllResults()),
+        ];
+
+        return view('landing/thanks', $data);
     }
 }

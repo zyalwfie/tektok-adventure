@@ -4,20 +4,23 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\CategoryModel;
+use App\Models\OrderModel;
 use App\Models\ProductModel;
 use Myth\Auth\Models\UserModel;
 
 class Admin extends BaseController
 {
-    protected $userModel, $productModel, $productBuilder, $categoryModel, $db;
+    protected $userModel, $productModel, $orderModel, $productBuilder, $orderBuilder, $categoryModel, $db;
 
     public function __construct()
     {
         $this->db = \Config\Database::connect();
         $this->productBuilder = $this->db->table('products');
+        $this->orderBuilder = $this->db->table('orders');
         $this->userModel = new UserModel();
         $this->productModel = new ProductModel();
         $this->categoryModel = new CategoryModel();
+        $this->orderModel = new OrderModel();
     }
 
     public function index()
@@ -218,5 +221,60 @@ class Admin extends BaseController
 
         $this->productModel->delete($product['id']);
         return redirect()->route('admin.products.index')->with('success', 'Produk berhasil dihapus!');
+    }
+
+    // Order Controller
+    public function orders()
+    {
+        $orders = $this->orderModel->findAll();
+
+        $data = [
+            'pageTitle' => 'Nuansa | Admin | Pesanan',
+            'orders' => $orders
+        ];
+
+        return view('dashboard/admin/order/index', $data);
+    }
+
+    public function showOrder($orderId)
+    {
+        $this->orderBuilder->select('order_items.id as orderItemId, name, price, image, quantity');
+        $this->orderBuilder->join('order_items', 'orders.id = order_items.order_id');
+        $this->orderBuilder->join('products', 'order_items.product_id = products.id');
+        $this->orderBuilder->where('order_items.order_id', $orderId);
+        $query = $this->orderBuilder->get();
+        $orderItems = $query->getResult();
+
+        $order = $this->orderModel->where('id', $orderId)->first();
+
+        $proofOfPayment = $this->orderBuilder->select('proof_of_payment')
+            ->join('payments', 'orders.id = payments.order_id')
+            ->where('payments.order_id', $orderId)
+            ->get()
+            ->getRow();
+
+        $data = [
+            'pageTitle' => 'Nuansa | Detail Pesanan',
+            'order_items' => $orderItems,
+            'order' => $order,
+            'proof_of_payment' => $proofOfPayment
+        ];
+
+        return view('dashboard/admin/order/show', $data);
+    }
+
+    public function updateOrder($orderId)
+    {
+        $status = $this->request->getPost('status');
+        
+        $this->orderModel->update($orderId, [
+            'status' => $status,
+        ]);
+
+        if ($status === 'berhasil') {
+            return redirect()->back()->with('proofed', 'Pesanan berhasil disetujui!');
+        } else {
+            return redirect()->back()->with('proofed', 'Pesanan berhasil dibatalkan!');
+        }
     }
 }

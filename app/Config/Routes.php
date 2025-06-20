@@ -44,7 +44,7 @@ $routes->group('dashboard', ['filter' => 'login'], static function ($routes) {
 
         $routes->get('orders', 'Admin::orders', ['as' => 'admin.orders.index']);
         $routes->get('orders/show/(:num)', 'Admin::showOrder/$1', ['as' => 'admin.orders.show']);
-        $routes->get('orders/update/(:num)', 'Admin::updateOrder/$1', ['as' => 'admin.orders.update']);
+        $routes->post('orders/update/(:num)', 'Admin::updateOrder/$1', ['as' => 'admin.orders.update']);
 
         $routes->get('profile', 'Admin::profile', ['as' => 'admin.profile.index']);
         $routes->get('profile/edit', 'Admin::editProfile', ['as' => 'admin.profile.edit']);

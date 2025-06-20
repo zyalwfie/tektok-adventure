@@ -255,8 +255,9 @@
                                     Lihat detail
                                 </a>
                                 <?php if (logged_in()) : ?>
-                                    <?= form_open(route_to('landing.shop.add')) ?>
+                                    <?= form_open(route_to('landing.cart.add')) ?>
                                     <?= csrf_field() ?>
+                                    <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
                                     <button type="submit" class="btn cart-btn">
                                         <i class="bi bi-cart-plus-fill"></i>
                                     </button>

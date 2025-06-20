@@ -29,7 +29,7 @@
             <div class="col-md-6">
                 <div class="small mb-1">Detail Produk</div>
                 <h1 class="display-5 fw-bolder"><?= $product['name'] ?></h1>
-                <div class="fs-5 mb-5">
+                <div class="fs-5 mb-3">
                     <?php if ($product['discount']) : ?>
                         <?php $discountPrice = $product['discount'] / 100 * $product['price'] ?>
                         <span class="text-decoration-line-through">Rp<?= number_format($product['price'], '0', '.', ',') ?></span>
@@ -43,15 +43,35 @@
                 <p class="lead">
                     <?= $product['description'] ?>
                 </p>
+                <?php if (session()->has('not_in_stock')) : ?>
+                    <div class="alert alert-danger d-flex align-items-center gap-2 alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-diamond"></i>
+                        <div>
+                            <?= session('not_in_stock') ?>
+                        </div>
+                        <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <?php elseif (session()->has('wrong_type_of')) : ?>
+                        <div class="alert alert-danger d-flex align-items-center gap-2 alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-diamond"></i>
+                            <div>
+                                <?= session('wrong_type_of') ?>
+                            </div>
+                            <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                <?php endif; ?>
                 <?php if (logged_in()) : ?>
                     <form action="<?= route_to('landing.cart.add') ?>" method="post" class="d-flex">
                         <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
-                        <input class="form-control text-center me-3" id="inputQuantity" type="num" value="1" style="max-width: 3rem" name="quantity" />
+                        <input class="form-control text-center me-3 <?= session()->has('not_in_stock') ? 'is-invalid' : ''  ?>" id="inputQuantity" type="num" value="<?= old('quantity', 1) ?>" style="max-width: 4.75rem" name="quantity" />
                         <button class="btn cart-btn flex-shrink-0" type="submit">
                             <i class="bi-cart-fill me-1"></i>
                             Tambah
                         </button>
                     </form>
+                    <div class="invalid-feedback">
+                        <?= session('not_in_stock') ?>
+                    </div>
                 <?php endif; ?>
             </div>
         </div>

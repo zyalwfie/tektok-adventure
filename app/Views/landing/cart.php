@@ -14,7 +14,7 @@
             <div class="col-lg-8">
                 <h2 style="text-shadow: 1px 1px 2px #000000;" class="text-white display-4">Keranjang Belanja</h2>
                 <p style="text-shadow: 1px 1px 2px #000000;" class="text-white">Di bawah ini daftar semua produk yang kamu tambah ke keranjang belanja.</p>
-                <a href="<?= route_to('landing.shop.index') ?>" class="btn-get-started text-decoration-none">Kembali Belanja</a>
+                <a href="<?= route_to('landing.shop.index') ?>" class="btn-get-started text-decoration-none mt-2">Kembali Belanja</a>
             </div>
         </div>
     </div>
@@ -104,7 +104,7 @@
                 <div class="form-group mb-3 row">
                     <div class="col">
                         <label for="recipient_name" class="text-black">Nama Penerima <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control <?= session('errors.recipient_name') ? 'is-invalid' : '' ?>" id="recipient_name" name="recipient_name" placeholder="Tulis namamu di sini" value="<?= old('recipient_name') ?>">
+                        <input type="text" class="form-control <?= session('errors.recipient_name') ? 'is-invalid' : '' ?>" id="recipient_name" name="recipient_name" placeholder="Tulis namamu di sini" value="<?= old('recipient_name', user()->full_name ? user()->full_name : '') ?>">
                         <?php if (session('errors.recipient_name')) : ?>
                             <div class="invalid-feedback">
                                 <?= session('errors.recipient_name') ?>
@@ -112,8 +112,8 @@
                         <?php endif; ?>
                     </div>
                     <div class="col">
-                        <label for="recipient_email" class="text-black">Email</label>
-                        <input type="text" class="form-control <?= session('errors.recipient_email') ? 'is-invalid' : '' ?>" id="recipient_email" name="recipient_email" placeholder="Tulis emailmu di sini" value="<?= old('recipient_email') ?>">
+                        <label for="recipient_email" class="text-black">Surel</label>
+                        <input type="text" class="form-control <?= session('errors.recipient_email') ? 'is-invalid' : '' ?>" id="recipient_email" name="recipient_email" placeholder="Tulis surelmu di sini" value="<?= old('recipient_email', user()->email) ?>">
                         <?php if (session('errors.recipient_email')) : ?>
                             <div class="invalid-feedback">
                                 <?= session('errors.recipient_email') ?>
@@ -212,7 +212,7 @@
     <?= form_close() ?>
 </div>
 
-<?php if(session()->has('not_in_stock')) : ?>
+<?php if (session()->has('not_in_stock')) : ?>
     <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2" role="alert">
         <i class="bi bi-exclamation-circle-fill"></i>
         <div>
@@ -220,14 +220,22 @@
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-    <?php elseif(session()->has('success')) : ?>
-        <div class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2" role="alert">
-            <i class="bi bi-exclamation-circle-fill"></i>
-            <div>
-                <?= session('success') ?>
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<?php elseif (session()->has('success')) : ?>
+    <div class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2" role="alert">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        <div>
+            <?= session('success') ?>
         </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<?php elseif (session()->has('failed')) : ?>
+    <div class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2" role="alert">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        <div>
+            <?= session('failed') ?>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 <?php endif; ?>
 
 <?= $this->endSection(); ?>

@@ -16,11 +16,13 @@
         <div class="d-flex align-items-center justify-content-between mb-3">
             <h5 class="card-title fw-semibold">Detail Profil</h5>
             <?php if (session()->has('success')) : ?>
-                <div class="alert alert-success m-0" role="alert">
+                <div class="alert alert-success d-flex align-items-center gap-2" role="alert">
+                    <i class="ti ti-checks"></i>
                     <?= session('success') ?>
                 </div>
             <?php elseif (session()->has('failed')) : ?>
-                <div class="alert alert-danger m-0" role="alert">
+                <div class="alert alert-danger d-flex align-items-center gap-2" role="alert">
+                    <i class="ti ti-x"></i>
                     <?= session('failed') ?>
                 </div>
             <?php endif; ?>

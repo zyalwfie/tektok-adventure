@@ -20,7 +20,11 @@
                         <div class="message-body">
                             <a href="<?= in_groups('admin') ? route_to('admin.profile.index') : route_to('user.profile.index') ?>" class="d-flex align-items-center gap-2 dropdown-item">
                                 <i class="ti ti-user fs-6"></i>
-                                <p class="mb-0 fs-3">Profile Saya</p>
+                                <p class="mb-0 fs-3">Profil</p>
+                            </a>
+                            <a href="<?= in_groups('admin') ? route_to('admin.profile.edit') : route_to('user.profile.edit') ?>" class="d-flex align-items-center gap-2 dropdown-item">
+                                <i class="ti ti-pencil fs-6"></i>
+                                <p class="mb-0 fs-3">Ubah Profil</p>
                             </a>
                             <a href="<?= url_to('logout') ?>" class="btn btn-outline-primary mx-3 mt-2 d-block">Keluar</a>
                         </div>
