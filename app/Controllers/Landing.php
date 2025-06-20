@@ -73,21 +73,21 @@ class Landing extends BaseController
     {
         $cartsBuilder = $this->db->table('carts');
         $query = $cartsBuilder
-            ->select('carts.id as cart_id, categories.name as category_name, products.id as product_id, products.name as product_name, products.description as product_description, image, products.slug as product_slug, price, price_at_add, quantity, stock')
+            ->select('carts.id as cart_id, categories.name as category_name, products.id as product_id, products.name as product_name, products.description as product_description, image, products.slug as product_slug, price, price_at_add, quantity, stock, discount')
             ->join('products', 'carts.product_id = products.id')
             ->join('categories', 'products.category_id = categories.id')
             ->get();
         $carts = $query->getResult();
 
-        foreach ($carts as $cart) {
+        foreach($carts as $cart) {
             $this->cartsTotalAmount += $cart->price_at_add;
         }
-
+        
         $data = [
             'pageTitle' => 'Tektok Adventure | Keranjang',
             'carts' => $carts,
-            'cartsTotalAmount' => $this->cartsTotalAmount,
-            'cartsTotalCount' => ((!logged_in()) ? 0 : $this->cartModel->where('user_id', user()->id)->countAllResults())
+            'cartsTotalCount' => ((!logged_in()) ? 0 : $this->cartModel->where('user_id', user()->id)->countAllResults()),
+            'cartsTotalAmount' => $this->cartsTotalAmount
         ];
 
         return view('landing/cart', $data);
@@ -106,14 +106,21 @@ class Landing extends BaseController
         $cart = $this->cartModel->where(['product_id' => $productId, 'user_id' => user()->id])->first();
         $currentCartQty = $cart ? (int)$cart['quantity'] : 0;
         $totalRequestedQty = $currentCartQty + $quantity;
+        $priceAtAdd = $product['price'];
 
         if ($product['stock'] < 1 || $totalRequestedQty > $product['stock']) {
             return redirect()->back()->withInput()->with('not_in_stock', 'Stok produk tidak mencukupi!');
         }
 
+        if ($product['discount'] > 1) {
+            $dicountPrice = $product['discount'] / 100 * $product['price'];
+            $dicountPriceResult = $product['price'] - $dicountPrice;
+            $priceAtAdd = $dicountPriceResult;
+        }
+
         if ($cart) {
             $newQuantity = $totalRequestedQty;
-            $newPriceAtAdd = $product['price'] * $newQuantity;
+            $newPriceAtAdd = $priceAtAdd;
             $this->cartModel->update($cart['id'], [
                 'quantity' => $newQuantity,
                 'price_at_add' => $newPriceAtAdd
@@ -123,7 +130,7 @@ class Landing extends BaseController
                 'user_id' => user()->id,
                 'product_id' => $productId,
                 'quantity' => $totalRequestedQty,
-                'price_at_add' => $product['price'] * $totalRequestedQty
+                'price_at_add' => $priceAtAdd
             ]);
         }
 

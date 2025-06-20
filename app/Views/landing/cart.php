@@ -97,34 +97,34 @@
         </div>
 
         <?= form_open(base_url(route_to('landing.cart.payment.create')), ['class' => 'row']) ?>
-        <div class="col-12 col-lg-6 mb-5 mb-md-0">
+        <div class="col-12 col-lg-5 mb-5 mb-md-0">
             <h2 class="h3 mb-3 text-black">Rincian Pengiriman</h2>
             <div class="p-3 p-lg-5 border bg-white">
 
-                <div class="form-group mb-3 row">
-                    <div class="col">
-                        <label for="recipient_name" class="text-black">Nama Penerima <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control <?= session('errors.recipient_name') ? 'is-invalid' : '' ?>" id="recipient_name" name="recipient_name" placeholder="Tulis namamu di sini" value="<?= old('recipient_name', user()->full_name ? user()->full_name : '') ?>">
-                        <?php if (session('errors.recipient_name')) : ?>
-                            <div class="invalid-feedback">
-                                <?= session('errors.recipient_name') ?>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                    <div class="col">
-                        <label for="recipient_email" class="text-black">Surel</label>
-                        <input type="text" class="form-control <?= session('errors.recipient_email') ? 'is-invalid' : '' ?>" id="recipient_email" name="recipient_email" placeholder="Tulis surelmu di sini" value="<?= old('recipient_email', user()->email) ?>">
-                        <?php if (session('errors.recipient_email')) : ?>
-                            <div class="invalid-feedback">
-                                <?= session('errors.recipient_email') ?>
-                            </div>
-                        <?php endif; ?>
-                    </div>
+                <div class="form-group mb-3">
+                    <label for="recipient_name" class="text-black">Nama Penerima <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control <?= session('errors.recipient_name') ? 'is-invalid' : '' ?>" id="recipient_name" name="recipient_name" placeholder="Tulis namamu di sini" value="<?= old('recipient_name', user()->full_name ? user()->full_name : '') ?>">
+                    <?php if (session('errors.recipient_name')) : ?>
+                        <div class="invalid-feedback">
+                            <?= session('errors.recipient_name') ?>
+                        </div>
+                    <?php endif; ?>
+
+                </div>
+
+                <div class="form-group mb-3 ">
+                    <label for="recipient_email" class="text-black">Surel</label>
+                    <input type="text" class="form-control <?= session('errors.recipient_email') ? 'is-invalid' : '' ?>" id="recipient_email" name="recipient_email" placeholder="Tulis surelmu di sini" value="<?= old('recipient_email', user()->email) ?>">
+                    <?php if (session('errors.recipient_email')) : ?>
+                        <div class="invalid-feedback">
+                            <?= session('errors.recipient_email') ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <div class="form-group mb-3">
                     <label for="street_address" class="text-black">Alamat Penerima <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control <?= session('errors.street_address') ? 'is-invalid' : '' ?>" id="street_address" name="street_address" placeholder="Tulis alamatmu di sini" value="<?= old('street_address') ?>">
+                    <textarea type="text" class="form-control <?= session('errors.street_address') ? 'is-invalid' : '' ?>" id="street_address" name="street_address" placeholder="Tulis alamatmu di sini" rows="5"><?= old('street_address') ?></textarea>
                     <?php if (session('errors.street_address')) : ?>
                         <div class="invalid-feedback">
                             <?= session('errors.street_address') ?>
@@ -145,15 +145,15 @@
 
                 <div class="form-group">
                     <label for="notes" class="text-black">Catatan</label>
-                    <textarea name="notes" id="notes" cols="30" rows="5" name="notes" class="form-control" placeholder="Tulis catatanmu di sini..."><?= old('notes') ?></textarea>
+                    <textarea name="notes" id="notes" rows="5" name="notes" class="form-control" placeholder="Tulis catatanmu di sini..."><?= old('notes') ?></textarea>
                 </div>
 
             </div>
         </div>
 
         <input type="hidden" name="total_price" value="<?= $cartsTotalAmount ?>">
-
-        <div class="col-12 col-lg-6">
+        
+        <div class="col-12 col-lg-7">
             <div class="row">
                 <div class="col-md-12">
                     <h2 class="h3 mb-3 text-black">Pesananmu</h2>
@@ -162,6 +162,7 @@
                             <thead>
                                 <th>Produk</th>
                                 <th>Total</th>
+                                <th>Harga Diskon</th>
                             </thead>
                             <tbody>
                                 <?php foreach ($carts as $cart) : ?>
@@ -169,12 +170,25 @@
                                         <input type="hidden" name="product_id[]" value="<?= $cart->product_id ?>">
                                         <input type="hidden" name="quantity[]" value="<?= $cart->quantity ?>">
                                         <td><?= $cart->product_name ?> <strong class="mx-2">x</strong> <?= $cart->quantity ?></td>
-                                        <td>Rp<?= number_format($cart->price, '0', '.', ',') ?></td>
+                                        <td class="<?= $cart->discount > 1 ? 'text-decoration-line-through' : '' ?>">Rp<?= number_format($cart->price, '0', '.', ',') ?></td>
+                                        <?php if ($cart->discount > 1) : ?>
+                                            <td>
+                                                <?php
+                                                $discountPrice = $cart->discount / 100 * $cart->price;
+                                                $dicountPriceResult = $cart->price - $discountPrice;
+                                                ?>
+                                                Rp<?= number_format($dicountPriceResult, '0', '.', ',') ?>
+                                            </td>
+                                        <?php else : ?>
+                                            <td>
+                                                <i class="bi bi-dash-lg"></i>
+                                            </td>
+                                        <?php endif; ?>
                                     </tr>
                                 <?php endforeach; ?>
                                 <tr>
                                     <td class="text-black font-weight-bold"><strong>Total Pesanan</strong></td>
-                                    <td class="text-black font-weight-bold"><strong>Rp<?= number_format($cartsTotalAmount, '0', '.', ',') ?></strong></td>
+                                    <td class="text-black font-weight-bold" colspan="2"><strong>Rp<?= number_format($cartsTotalAmount, '0', '.', ',') ?></strong></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -208,8 +222,8 @@
                 </div>
             </div>
         </div>
+        <?= form_close() ?>
     </div>
-    <?= form_close() ?>
 </div>
 
 <?php if (session()->has('not_in_stock')) : ?>

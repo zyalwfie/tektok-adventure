@@ -64,25 +64,33 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($paginatedOrders as $order) : ?>
+                            <?php if (!$paginatedOrders) : ?>
                                 <tr>
-                                    <td class="px-0">
-                                        <div class="d-flex align-items-center">
-                                            <div>
-                                                <h6 class="mb-0 fw-bolder"><?= $order['recipient_name'] ?></h6>
-                                                <span class="text-muted"><?= $order['recipient_email'] ?></span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-0">Rp<?= number_format($order['total_price'], '0', '.', ',') ?></td>
-                                    <td class="px-0">
-                                        <span class="badge <?php if ($order['status'] === 'tertunda') : ?>text-bg-warning <?php elseif ($order['status'] === 'berhasil') : ?>text-bg-success <?php else: ?>text-bg-danger<?php endif; ?> text-capitalize"><?= $order['status'] ?></span>
-                                    </td>
-                                    <td class="px-0 text-dark fw-medium text-end">
-                                        <a href="<?= route_to('user.orders.show', $order['id']) ?>" class="text-info">Lihat</a>
-                                    </td>
+                                    <th colspan="4" class="text-center">
+                                        Pesanan tidak ditemukan.
+                                    </th>
                                 </tr>
-                            <?php endforeach; ?>
+                            <?php else : ?>
+                                <?php foreach ($paginatedOrders as $order) : ?>
+                                    <tr>
+                                        <td class="px-0">
+                                            <div class="d-flex align-items-center">
+                                                <div>
+                                                    <h6 class="mb-0 fw-bolder"><?= $order['recipient_name'] ?></h6>
+                                                    <span class="text-muted"><?= $order['recipient_email'] ?></span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-0">Rp<?= number_format($order['total_price'], '0', '.', ',') ?></td>
+                                        <td class="px-0">
+                                            <span class="badge <?php if ($order['status'] === 'tertunda') : ?>text-bg-warning <?php elseif ($order['status'] === 'berhasil') : ?>text-bg-success <?php else: ?>text-bg-danger<?php endif; ?> text-capitalize"><?= $order['status'] ?></span>
+                                        </td>
+                                        <td class="px-0 text-dark fw-medium text-end">
+                                            <a href="<?= route_to('user.orders.show', $order['id']) ?>" class="text-info">Lihat</a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                     <nav aria-label="Page navigation">

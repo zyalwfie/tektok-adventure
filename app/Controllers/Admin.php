@@ -10,13 +10,15 @@ use Myth\Auth\Models\UserModel;
 
 class Admin extends BaseController
 {
-    protected $userModel, $productModel, $orderModel, $productBuilder, $orderBuilder, $categoryModel, $db;
+    protected $userModel, $productModel, $orderModel, $categoryModel, $productBuilder, $orderBuilder, $userBuilder, $authGroupUserBuilder, $db;
 
     public function __construct()
     {
         $this->db = \Config\Database::connect();
         $this->productBuilder = $this->db->table('products');
         $this->orderBuilder = $this->db->table('orders');
+        $this->userBuilder = $this->db->table('users');
+        $this->authGroupUserBuilder = $this->db->table('auth_groups_users');
         $this->userModel = new UserModel();
         $this->productModel = new ProductModel();
         $this->categoryModel = new CategoryModel();
@@ -220,7 +222,9 @@ class Admin extends BaseController
         }
 
         $this->productModel->delete($product['id']);
-        return redirect()->route('admin.products.index')->with('success', 'Produk berhasil dihapus!');
+        $query = $this->request->getServer('QUERY_STRING');
+        $url = route_to('admin.products.index') . ($query ? '?' . $query : '');
+        return redirect()->to($url)->with('success', 'Produk berhasil dihapus!');
     }
 
     // Order Controller
@@ -266,7 +270,7 @@ class Admin extends BaseController
     public function updateOrder($orderId)
     {
         $status = $this->request->getPost('status');
-        
+
         $this->orderModel->update($orderId, [
             'status' => $status,
         ]);
@@ -276,5 +280,54 @@ class Admin extends BaseController
         } else {
             return redirect()->back()->with('proofed', 'Pesanan berhasil dibatalkan!');
         }
+    }
+
+    // User Controller
+    public function users()
+    {
+        $this->userBuilder->select('users.id as userId, email, full_name, username, avatar, active');
+        $this->userBuilder->join('auth_groups_users', 'auth_groups_users.user_id = users.id');
+        $this->userBuilder->where('auth_groups_users.group_id', 2);
+        $query = $this->userBuilder->get();
+        $users = $query->getResultArray();
+
+        $data = [
+            'index' => 1,
+            'pageTitle' => 'Dasbor | Admin | Pengguna',
+            'users' => $users
+        ];
+
+        return view('dashboard/admin/user/index', $data);
+    }
+
+    public function destroyUser($username)
+    {
+        $queryAuthGroupsUsers = $this->authGroupUserBuilder->get();
+        $authGroupsUsers = $queryAuthGroupsUsers->getResult();
+
+        $authGroupsUserId = [];
+
+        foreach ($authGroupsUsers as $row) {
+            $authGroupsUserId[] = $row->user_id;
+        }
+
+        $user = $this->userBuilder->where('username', $username)->get()->getRow();
+        $userId = $user->id;
+
+        if (!$user && !in_array($userId, $authGroupsUserId)) {
+            return redirect()->route('admin.users')->with('failed', 'Pengguna tidak ditemukan!');
+        }
+
+        if (!empty($user->avatar) && $user->avatar !== 'default-img-avatar.svg') {
+            $avatarPath = FCPATH . 'img/uploads/avatar/' . $user->avatar;
+            if (file_exists($avatarPath)) {
+                @unlink($avatarPath);
+            }
+        }
+
+        $this->userBuilder->where('username', $username)->delete();
+        $query = $this->request->getServer('QUERY_STRING');
+        $url = route_to('admin.users.index') . ($query ? '?' . $query : '');
+        return redirect()->to($url)->with('success', 'Pengguna berhasil dihapus!');
     }
 }

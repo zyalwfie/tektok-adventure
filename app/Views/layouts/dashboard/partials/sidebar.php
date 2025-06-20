@@ -40,7 +40,7 @@
                 <?php if (in_groups('admin')) : ?>
                     <li class="sidebar-item">
                         <a class="sidebar-link justify-content-between <?= (url_is('dashboard/admin/users*')) ? 'active' : '' ?>"
-                            href="<?= route_to('admin.user.index') ?>"
+                            href="<?= route_to('admin.users.index') ?>"
                             aria-expanded="false">
                             <div class="d-flex align-items-center gap-3">
                                 <span class="d-flex">
