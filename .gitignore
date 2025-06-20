@@ -128,3 +128,6 @@ _modules/*
 # Image
 public/img/product/uploads/*
 !public/img/product/uploads/default.svg
+
+# Allow Vendor
+!public/vendor/
