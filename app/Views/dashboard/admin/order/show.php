@@ -165,6 +165,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                     <?= form_open(route_to('admin.orders.update', $order['id'])) ?>
+                    <input type="hidden" name="status" value="berhasil">
                     <button type="submit" class="btn btn-primary">Ya, setujui sekarang</button>
                     <?= form_close() ?>
                 </div>

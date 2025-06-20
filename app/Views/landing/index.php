@@ -124,12 +124,12 @@
             <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
                 <div class="service-item position-relative">
                     <div class="icon">
-                        <i class="bi bi-gear-fill"></i>
+                        <i class="bi bi-tags-fill"></i>
                     </div>
                     <a href="#" class="stretched-link">
-                        <h3>Rental Peralatan</h3>
+                        <h3>Promo Spesial</h3>
                     </a>
-                    <p>Sewa peralatan camping berkualitas untuk kebutuhan short trip. Tersedia paket harian/mingguan dengan harga terjangkau.</p>
+                    <p>Dapatkan diskon eksklusif hingga 80% untuk produk pilihan kami, jangan sampai ketinggalan.</p>
                 </div>
             </div><!-- End Service Item -->
 
