@@ -479,6 +479,13 @@ class Admin extends BaseController
         } else {
             $filename .= 'semua_periode';
         }
+        $filename .= '.pdf';
+
+        // Output the generated PDF to Browser
+        // Parameters:
+        // 1. filename
+        // 2. options: 'D' = Download, 'I' = Inline (display in browser), 'F' = Save to file, 'S' = Return as string
+        $dompdf->stream($filename, ["Attachment" => true]);
     }
 
     private function generatePdfContent($orders, $totalSales, $startDate = null, $endDate = null)
@@ -493,6 +500,8 @@ class Admin extends BaseController
                 body { 
                     font-family: Helvetica, Arial, sans-serif; 
                     font-size: 10pt;
+                    margin: 0;
+                    padding: 20px;
                 }
                 .report-header { 
                     text-align: center; 
@@ -502,51 +511,100 @@ class Admin extends BaseController
                 }
                 .report-header h1 { 
                     margin: 0; 
-                    color: #333; 
+                    color: #333;
+                    font-size: 24pt;
                 }
                 .report-header p { 
                     margin: 5px 0; 
-                    color: #666; 
+                    color: #666;
+                    font-size: 12pt;
+                }
+                .company-info {
+                    text-align: center;
+                    margin-bottom: 10px;
+                }
+                .company-info p {
+                    margin: 2px 0;
+                    font-size: 9pt;
+                    color: #555;
                 }
                 .total-sales {
                     background-color: #f0f0f0;
-                    padding: 10px;
+                    padding: 15px;
                     text-align: center;
                     margin-bottom: 20px;
                     font-weight: bold;
                     border: 1px solid #ddd;
+                    border-radius: 5px;
+                }
+                .total-sales h3 {
+                    margin: 0 0 5px 0;
+                    color: #333;
+                }
+                .total-sales .amount {
+                    font-size: 18pt;
+                    color: #28a745;
                 }
                 table { 
                     width: 100%; 
                     border-collapse: collapse; 
                     margin-bottom: 20px; 
                 }
-                table, th, td { 
+                table th, table td { 
                     border: 1px solid #ddd; 
-                    padding: 6px; 
+                    padding: 8px;
+                    text-align: left;
                 }
                 th { 
-                    background-color: #f8f8f8; 
-                    text-align: left; 
+                    background-color: #f8f8f8;
+                    font-weight: bold;
+                    color: #333;
+                }
+                tr:nth-child(even) {
+                    background-color: #f9f9f9;
+                }
+                .text-center {
+                    text-align: center;
+                }
+                .text-right {
+                    text-align: right;
                 }
                 .footer {
                     font-size: 8pt;
-                    text-align: right;
+                    text-align: center;
                     color: #666;
-                    margin-top: 20px;
+                    margin-top: 30px;
+                    padding-top: 10px;
+                    border-top: 1px solid #ddd;
+                }
+                .summary-info {
+                    margin-bottom: 20px;
+                    padding: 10px;
+                    background-color: #f5f5f5;
+                    border-radius: 5px;
+                }
+                .summary-info p {
+                    margin: 5px 0;
+                    font-size: 10pt;
                 }
             </style>
         </head>
         <body>
+            <div class="company-info">
+                <p><strong>Tektok Adventure</strong></p>
+                <p>Pringgabaya, Lombok Timur</p>
+                <p>Telp: +62 851-3903-8087 | Email: ucihalingga12@gmail.com</p>
+            </div>
+            
             <div class="report-header">
-                <h1>Laporan Penjualan Nuansa</h1>';
+                <h1>Laporan Penjualan</h1>';
 
         if ($startDate && $endDate) {
-            $html .= "<p>Periode: " . date('d M Y', strtotime($startDate)) . " - " . date('d M Y', strtotime($endDate)) . "</p>";
+            $html .= "<p>Periode: " . date('d F Y', strtotime($startDate)) . " - " . date('d F Y', strtotime($endDate)) . "</p>";
         } elseif ($startDate) {
-            $html .= "<p>Mulai dari: " . date('d M Y', strtotime($startDate)) . "</p>";
+            $html .= "<p>Mulai dari: " . date('d F Y', strtotime($startDate)) . "</p>";
         } elseif ($endDate) {
-            $html .= "<p>Sampai dengan: " . date('d M Y', strtotime($endDate)) . "</p>";
+            $html .= "<p>Sampai dengan: " . date('d F Y', strtotime($endDate)) . "</p>";
         } else {
             $html .= "<p>Semua Periode</p>";
         }
@@ -555,39 +613,55 @@ class Admin extends BaseController
             </div>
             
             <div class="total-sales">
-                Total Penjualan: Rp' . number_format($totalSales, 0, ',', '.') . '
+                <h3>Total Penjualan</h3>
+                <div class="amount">Rp ' . number_format($totalSales, 0, ',', '.') . '</div>
+            </div>
+            
+            <div class="summary-info">
+                <p><strong>Ringkasan Laporan:</strong></p>
+                <p>Total Transaksi: ' . count($orders) . ' pesanan</p>
+                <p>Status: Semua transaksi berhasil</p>
             </div>
 
             <table>
                 <thead>
                     <tr>
-                        <th>No</th>
-                        <th>Tanggal</th>
-                        <th>Nama Penerima</th>
-                        <th>Email</th>
-                        <th>Total Harga</th>
-                        <th>Status</th>
+                        <th class="text-center" width="5%">No</th>
+                        <th width="15%">Tanggal</th>
+                        <th width="25%">Nama Penerima</th>
+                        <th width="25%">Email</th>
+                        <th width="15%">No. Telepon</th>
+                        <th class="text-right" width="15%">Total Harga</th>
                     </tr>
                 </thead>
                 <tbody>';
 
-        foreach ($orders as $index => $order) {
-            $html .= "
+        if (empty($orders)) {
+            $html .= '
                 <tr>
-                    <td>" . ($index + 1) . "</td>
-                    <td>" . date('d M Y', strtotime($order['created_at'])) . "</td>
+                    <td colspan="6" class="text-center">Tidak ada data penjualan yang ditemukan.</td>
+                </tr>';
+        } else {
+            foreach ($orders as $index => $order) {
+                $html .= "
+                <tr>
+                    <td class='text-center'>" . ($index + 1) . "</td>
+                    <td>" . date('d/m/Y', strtotime($order['created_at'])) . "</td>
                     <td>" . htmlspecialchars($order['recipient_name']) . "</td>
                     <td>" . htmlspecialchars($order['recipient_email']) . "</td>
-                    <td>Rp" . number_format($order['total_price'], 0, ',', '.') . "</td>
-                    <td>" . htmlspecialchars($order['status']) . "</td>
+                    <td>" . htmlspecialchars($order['recipient_phone'] ?? '-') . "</td>
+                    <td class='text-right'>Rp " . number_format($order['total_price'], 0, ',', '.') . "</td>
                 </tr>";
+            }
         }
 
         $html .= '
                 </tbody>
             </table>
+            
             <div class="footer">
-                Dicetak pada: ' . date('d M Y H:i:s') . ' | Total Pesanan: ' . count($orders) . '
+                <p>Laporan ini dicetak pada: ' . date('d F Y H:i:s') . '</p>
+                <p>© ' . date('Y') . ' Tektok Adventure - Laporan Penjualan</p>
             </div>
         </body>
         </html>';
