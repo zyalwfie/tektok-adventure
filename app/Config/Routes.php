@@ -51,6 +51,8 @@ $routes->group('dashboard', ['filter' => 'login'], static function ($routes) {
         $routes->post('profile/update', 'Admin::updateProfile', ['as' => 'admin.profile.update']);
 
         $routes->get('reports', 'Admin::reports', ['as' => 'admin.reports.index']);
+        $routes->get('reports/preview', 'Admin::previewReportPdf', ['as' => 'admin.reports.preview']);
+        $routes->get('reports/export', 'Admin::exportReportPdf', ['as' => 'admin.reports.export']);
     });
 
     // User Dashboard

@@ -7,6 +7,8 @@ use App\Models\CategoryModel;
 use App\Models\OrderModel;
 use App\Models\ProductModel;
 use Myth\Auth\Models\UserModel;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class Admin extends BaseController
 {
@@ -50,7 +52,7 @@ class Admin extends BaseController
             'pendingOrdersCount' => $pendingOrdersCount,
             'usersAmount' => $this->userModel->countAllResults(),
             'orders' => $orders
-        ];        
+        ];
 
         return view('dashboard/admin/index', $data);
     }
@@ -355,13 +357,241 @@ class Admin extends BaseController
     // Report Controller
     public function reports()
     {
-        $orders = $this->orderModel->where('status', 'berhasil')->findAll();
+        $startDate = $this->request->getGet('start_date');
+        $endDate = $this->request->getGet('end_date');
+
+        $ordersBuilder = $this->db->table('orders');
+        $ordersBuilder->select('orders.*, users.email as recipient_email')
+            ->join('users', 'users.id = orders.user_id')
+            ->where('orders.status', 'berhasil');
+
+        if ($startDate) {
+            $ordersBuilder->where('orders.created_at >=', $startDate);
+        }
+        if ($endDate) {
+            $ordersBuilder->where('orders.created_at <=', $endDate . ' 23:59:59');
+        }
+
+        $query = $ordersBuilder->get();
+        $filteredOrders = $query->getResultArray();
+
+        $totalSales = array_reduce($filteredOrders, function ($carry, $order) {
+            return $carry + $order['total_price'];
+        }, 0);
 
         $data = [
             'pageTitle' => 'Nuansa | Admin | Laporan Transaksi',
-            'orders' => $orders
+            'orders' => $this->orderModel->findAll(),
+            'filteredOrders' => $filteredOrders,
+            'totalSales' => $totalSales,
+            'startDate' => $startDate,
+            'endDate' => $endDate
         ];
-        
+
         return view('dashboard/admin/report/index', $data);
+    }
+
+    public function previewReportPdf()
+    {
+        $startDate = $this->request->getGet('start_date');
+        $endDate = $this->request->getGet('end_date');
+
+        $ordersBuilder = $this->db->table('orders');
+        $ordersBuilder->select('orders.*, users.email as recipient_email')
+            ->join('users', 'users.id = orders.user_id')
+            ->where('orders.status', 'berhasil');
+
+        if ($startDate) {
+            $ordersBuilder->where('orders.created_at >=', $startDate);
+        }
+        if ($endDate) {
+            $ordersBuilder->where('orders.created_at <=', $endDate . ' 23:59:59');
+        }
+
+        $query = $ordersBuilder->get();
+        $filteredOrders = $query->getResultArray();
+
+        $totalSales = array_reduce($filteredOrders, function ($carry, $order) {
+            return $carry + $order['total_price'];
+        }, 0);
+
+        $data = [
+            'pageTitle' => 'Preview Laporan Penjualan',
+            'orders' => $filteredOrders,
+            'totalSales' => $totalSales,
+            'startDate' => $startDate,
+            'endDate' => $endDate
+        ];
+
+        return view('dashboard/admin/report/preview', $data);
+    }
+
+    public function exportReportPdf()
+    {
+        if (!class_exists('Dompdf\Dompdf')) {
+            throw new \RuntimeException('Dompdf library is not installed. Please run: composer require dompdf/dompdf');
+        }
+
+        $startDate = $this->request->getGet('start_date');
+        $endDate = $this->request->getGet('end_date');
+
+        $ordersBuilder = $this->db->table('orders');
+        $ordersBuilder->select('orders.*, users.email as recipient_email')
+            ->join('users', 'users.id = orders.user_id')
+            ->where('orders.status', 'berhasil');
+
+        if ($startDate) {
+            $ordersBuilder->where('orders.created_at >=', $startDate);
+        }
+        if ($endDate) {
+            $ordersBuilder->where('orders.created_at <=', $endDate . ' 23:59:59');
+        }
+
+        $query = $ordersBuilder->get();
+        $filteredOrders = $query->getResultArray();
+
+        $totalSales = array_reduce($filteredOrders, function ($carry, $order) {
+            return $carry + $order['total_price'];
+        }, 0);
+
+        $options = new Options();
+        $options->set('defaultFont', 'Helvetica');
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true);
+
+        $dompdf = new Dompdf($options);
+
+        $html = $this->generatePdfContent($filteredOrders, $totalSales, $startDate, $endDate);
+
+        $dompdf->loadHtml($html);
+
+        $dompdf->setPaper('A4', 'landscape');
+
+        $dompdf->render();
+
+        $filename = 'Laporan_Penjualan_';
+        if ($startDate && $endDate) {
+            $filename .= date('d_m_Y', strtotime($startDate)) . '_to_' . date('d_m_Y', strtotime($endDate));
+        } elseif ($startDate) {
+            $filename .= 'dari_' . date('d_m_Y', strtotime($startDate));
+        } elseif ($endDate) {
+            $filename .= 'sampai_' . date('d_m_Y', strtotime($endDate));
+        } else {
+            $filename .= 'semua_periode';
+        }
+    }
+
+    private function generatePdfContent($orders, $totalSales, $startDate = null, $endDate = null)
+    {
+        $html = '
+        <!DOCTYPE html>
+        <html lang="id">
+        <head>
+            <meta charset="UTF-8">
+            <title>Laporan Penjualan</title>
+            <style>
+                body { 
+                    font-family: Helvetica, Arial, sans-serif; 
+                    font-size: 10pt;
+                }
+                .report-header { 
+                    text-align: center; 
+                    margin-bottom: 20px;
+                    border-bottom: 2px solid #000;
+                    padding-bottom: 10px;
+                }
+                .report-header h1 { 
+                    margin: 0; 
+                    color: #333; 
+                }
+                .report-header p { 
+                    margin: 5px 0; 
+                    color: #666; 
+                }
+                .total-sales {
+                    background-color: #f0f0f0;
+                    padding: 10px;
+                    text-align: center;
+                    margin-bottom: 20px;
+                    font-weight: bold;
+                    border: 1px solid #ddd;
+                }
+                table { 
+                    width: 100%; 
+                    border-collapse: collapse; 
+                    margin-bottom: 20px; 
+                }
+                table, th, td { 
+                    border: 1px solid #ddd; 
+                    padding: 6px; 
+                }
+                th { 
+                    background-color: #f8f8f8; 
+                    text-align: left; 
+                }
+                .footer {
+                    font-size: 8pt;
+                    text-align: right;
+                    color: #666;
+                    margin-top: 20px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="report-header">
+                <h1>Laporan Penjualan Nuansa</h1>';
+
+        if ($startDate && $endDate) {
+            $html .= "<p>Periode: " . date('d M Y', strtotime($startDate)) . " - " . date('d M Y', strtotime($endDate)) . "</p>";
+        } elseif ($startDate) {
+            $html .= "<p>Mulai dari: " . date('d M Y', strtotime($startDate)) . "</p>";
+        } elseif ($endDate) {
+            $html .= "<p>Sampai dengan: " . date('d M Y', strtotime($endDate)) . "</p>";
+        } else {
+            $html .= "<p>Semua Periode</p>";
+        }
+
+        $html .= '
+            </div>
+            
+            <div class="total-sales">
+                Total Penjualan: Rp' . number_format($totalSales, 0, ',', '.') . '
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Tanggal</th>
+                        <th>Nama Penerima</th>
+                        <th>Email</th>
+                        <th>Total Harga</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>';
+
+        foreach ($orders as $index => $order) {
+            $html .= "
+                <tr>
+                    <td>" . ($index + 1) . "</td>
+                    <td>" . date('d M Y', strtotime($order['created_at'])) . "</td>
+                    <td>" . htmlspecialchars($order['recipient_name']) . "</td>
+                    <td>" . htmlspecialchars($order['recipient_email']) . "</td>
+                    <td>Rp" . number_format($order['total_price'], 0, ',', '.') . "</td>
+                    <td>" . htmlspecialchars($order['status']) . "</td>
+                </tr>";
+        }
+
+        $html .= '
+                </tbody>
+            </table>
+            <div class="footer">
+                Dicetak pada: ' . date('d M Y H:i:s') . ' | Total Pesanan: ' . count($orders) . '
+            </div>
+        </body>
+        </html>';
+
+        return $html;
     }
 }
