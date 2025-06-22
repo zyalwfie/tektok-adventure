@@ -32,9 +32,7 @@
                             <th class="product-thumbnail">Gambar</th>
                             <th class="product-name">Nama</th>
                             <th class="product-price">Harga</th>
-                            <th class="product-quantity">
-                                Kuantitas
-                            </th>
+                            <th class="product-quantity">Kuantitas</th>
                             <th class="product-total">Total</th>
                             <th class="product-remove">Hapus</th>
                         </tr>
@@ -152,7 +150,7 @@
         </div>
 
         <input type="hidden" name="total_price" value="<?= $cartsTotalAmount ?>">
-        
+
         <div class="col-12 col-lg-7">
             <div class="row">
                 <div class="col-md-12">

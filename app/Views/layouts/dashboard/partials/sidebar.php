@@ -37,6 +37,19 @@
             </li>
             <?php if (in_groups('admin')) : ?>
                 <li class="sidebar-item">
+                    <a class="sidebar-link justify-content-between <?= (url_is('dashboard/admin/reports*')) ? 'active' : '' ?>"
+                        href="<?= route_to('admin.reports.index') ?>"
+                        aria-expanded="false">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="d-flex">
+                                <i class="ti ti-report"></i>
+                            </span>
+                            <span class="hide-menu">Laporan</span>
+                        </div>
+
+                    </a>
+                </li>
+                <li class="sidebar-item">
                     <a class="sidebar-link justify-content-between <?= (url_is('dashboard/admin/users*')) ? 'active' : '' ?>"
                         href="<?= route_to('admin.users.index') ?>"
                         aria-expanded="false">

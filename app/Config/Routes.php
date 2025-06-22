@@ -49,6 +49,8 @@ $routes->group('dashboard', ['filter' => 'login'], static function ($routes) {
         $routes->get('profile', 'Admin::profile', ['as' => 'admin.profile.index']);
         $routes->get('profile/edit', 'Admin::editProfile', ['as' => 'admin.profile.edit']);
         $routes->post('profile/update', 'Admin::updateProfile', ['as' => 'admin.profile.update']);
+
+        $routes->get('reports', 'Admin::reports', ['as' => 'admin.reports.index']);
     });
 
     // User Dashboard

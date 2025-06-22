@@ -351,4 +351,17 @@ class Admin extends BaseController
         $url = route_to('admin.users.index') . ($query ? '?' . $query : '');
         return redirect()->to($url)->with('success', 'Pengguna berhasil dihapus!');
     }
+
+    // Report Controller
+    public function reports()
+    {
+        $orders = $this->orderModel->where('status', 'berhasil')->findAll();
+
+        $data = [
+            'pageTitle' => 'Nuansa | Admin | Laporan Transaksi',
+            'orders' => $orders
+        ];
+        
+        return view('dashboard/admin/report/index', $data);
+    }
 }
