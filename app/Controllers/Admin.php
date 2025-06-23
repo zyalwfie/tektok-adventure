@@ -12,7 +12,7 @@ use Dompdf\Options;
 
 class Admin extends BaseController
 {
-    protected $userModel, $productModel, $orderModel, $categoryModel, $productBuilder, $orderBuilder, $userBuilder, $authGroupUserBuilder, $db;
+    protected $userModel, $productModel, $orderModel, $categoryModel, $productBuilder, $orderBuilder, $orderItemBuilder, $userBuilder, $authGroupUserBuilder, $db;
 
     public function __construct()
     {
@@ -20,6 +20,7 @@ class Admin extends BaseController
         $this->productBuilder = $this->db->table('products');
         $this->orderBuilder = $this->db->table('orders');
         $this->userBuilder = $this->db->table('users');
+        $this->orderItemBuilder = $this->db->table('order_items');
         $this->authGroupUserBuilder = $this->db->table('auth_groups_users');
         $this->userModel = new UserModel();
         $this->productModel = new ProductModel();
@@ -292,6 +293,15 @@ class Admin extends BaseController
 
     public function updateOrder($orderId)
     {
+        $query = $this->orderItemBuilder
+            ->select('quantity, products.id as product_id, stock')
+            ->join('orders', 'order_items.order_id = orders.id')
+            ->join('products', 'order_items.product_id = products.id')
+            ->where('order_items.order_id', $orderId)
+            ->get();
+        
+        $orders = $query->getResultArray();
+        
         $status = $this->request->getPost('status');
 
         $this->orderModel->update($orderId, [
@@ -299,6 +309,11 @@ class Admin extends BaseController
         ]);
 
         if ($status === 'berhasil') {
+            foreach ($orders as $order) {
+                $this->productModel->update($order['product_id'], [
+                    'stock' => $order['stock'] - $order['quantity']
+                ]);
+            }
             return redirect()->back()->with('proofed', 'Pesanan berhasil disetujui!');
         } else {
             return redirect()->back()->with('proofed', 'Pesanan berhasil dibatalkan!');

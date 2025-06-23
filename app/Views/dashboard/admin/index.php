@@ -68,7 +68,7 @@
     </div>
     <div class="col-lg-4">
         <div class="card pt-4">
-            <img src="<?= base_url('img/profile/user-1.svg') ?>" alt="<?= user()->username ?>" style="width: 81%; margin: auto;">
+            <img src="<?= base_url('img/profile/' . user()->avatar) ?>" alt="<?= user()->username ?>" style="width: 81%; margin: auto;">
             <div class="card-body">
                 <div class="d-flex gap-2 justify-content-center align-items-center">
                     <div>

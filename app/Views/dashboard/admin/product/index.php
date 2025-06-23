@@ -49,7 +49,9 @@
                             <th scope="col" class="px-0 text-muted">
                                 Produk
                             </th>
-                            <th scope="col" class="px-0 text-muted">Harga</th>
+                            <th scope="col" class="px-0 text-muted">
+                                Harga
+                            </th>
                             <th scope="col" class="px-0 text-muted">
                                 Stok
                             </th>
