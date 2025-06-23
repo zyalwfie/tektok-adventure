@@ -60,7 +60,7 @@
                             <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                 <?php endif; ?>
-                <?php if (logged_in()) : ?>
+                <?php if (logged_in() && in_groups('user')) : ?>
                     <form action="<?= route_to('landing.cart.add') ?>" method="post" class="d-flex">
                         <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
                         <input class="form-control text-center me-3 <?= session()->has('not_in_stock') ? 'is-invalid' : ''  ?>" id="inputQuantity" type="num" value="<?= old('quantity', 1) ?>" style="max-width: 4.75rem" name="quantity" />
