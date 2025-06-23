@@ -125,7 +125,7 @@
                                     href="<?= route_to('landing.shop.show', $product['slug']) ?>">
                                     Lihat detail
                                 </a>
-                                <?php if (logged_in()) : ?>
+                                <?php if (logged_in() && in_groups('user')) : ?>
                                     <?= form_open(route_to('landing.shop.add')) ?>
                                     <?= csrf_field() ?>
                                     <button type="submit" class="btn cart-btn">
