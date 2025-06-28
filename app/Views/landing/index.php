@@ -254,7 +254,7 @@
                                     href="<?= route_to('landing.shop.show', $product['slug']) ?>">
                                     Lihat detail
                                 </a>
-                                <?php if (logged_in()) : ?>
+                                <?php if (logged_in() && in_groups('admin')) : ?>
                                     <?= form_open(route_to('landing.cart.add')) ?>
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
