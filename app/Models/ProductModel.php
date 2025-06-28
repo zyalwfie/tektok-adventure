@@ -50,6 +50,7 @@ class ProductModel extends Model
             'required' => 'Name produk harus diisi!',
             'min_length' => 'Karakter terlalu pendek!',
             'max_length' => 'Karakter terlalu panjang!',
+            'is_unique' => 'Nama produk sudah tersedia!'
         ],
         'price' => [
             'required' => 'Harga harus diisi!',
