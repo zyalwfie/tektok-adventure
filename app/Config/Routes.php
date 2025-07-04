@@ -33,7 +33,7 @@ $routes->group('dashboard', ['filter' => 'login'], static function ($routes) {
         $routes->get('', 'Admin', ['as' => 'admin.index']);
 
         $routes->get('products', 'Admin::products', ['as' => 'admin.products.index']);
-        $routes->get('products/create', 'Admin::createProduct', ['as' => 'admin.prodducts.create']);
+        $routes->get('products/create', 'Admin::createProduct', ['as' => 'admin.products.create']);
         $routes->post('products/store', 'Admin::storeProduct', ['as' => 'admin.products.store']);
         $routes->get('products/edit/(:segment)', 'Admin::editProduct/$1', ['as' => 'admin.products.edit']);
         $routes->post('products/update/(:num)', 'Admin::updateProduct/$1', ['as' => 'admin.products.update']);

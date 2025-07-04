@@ -33,7 +33,7 @@ class CreateCategoryTable extends Migration
             ]
         ]);
 
-        $this->forge->addKey('id');
+        $this->forge->addKey('id', true);
         $this->forge->createTable('categories');
     }
 

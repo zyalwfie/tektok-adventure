@@ -131,3 +131,6 @@ public/img/product/uploads/*
 
 # Allow Vendor
 !public/vendor/
+
+public/img/product/uploads/*
+!public/img/product/uploads/default.svg

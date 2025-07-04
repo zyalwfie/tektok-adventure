@@ -7,7 +7,7 @@
 
         <div class="d-flex gap-3 align-items-center">
             <nav id="navmenu" class="navmenu">
-                <?php if (uri_string() === 'shop' || uri_string() === 'cart') : ?>
+                <?php if (url_is('shop*') || url_is('cart*')) : ?>
                     <ul>
                         <li><a href="<?= base_url('#hero') ?>" class="text-decoration-none">Beranda</a></li>
                         <li><a href="<?= base_url('#about') ?>" class="text-decoration-none">Tentang</a></li>
@@ -26,7 +26,7 @@
                     </ul>
                 <?php else : ?>
                     <ul>
-                        <li><a href="#hero" class="text-decoration-none">Beranda</a></li>
+                        <li><a href="#hero" id="nav-beranda" class="text-decoration-none">Beranda</a></li>
                         <li><a href="#about" class="text-decoration-none">Tentang</a></li>
                         <li><a href="#why-us" class="text-decoration-none">Kenapa Kami</a></li>
                         <li><a href="#services" class="text-decoration-none">Layanan</a></li>
@@ -71,7 +71,6 @@
                 <?php endif; ?>
             <?php endif; ?>
         </div>
-
 
     </div>
 </header>
