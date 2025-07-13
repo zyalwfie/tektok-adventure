@@ -131,6 +131,16 @@
                                 </div>
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#infoModal">Bukti pembayaran</button>
                             </div>
+                        <?php elseif ($order['status'] === 'gagal') : ?>
+                            <div class="col">
+                                <img id="paymentProofImg" src="<?= base_url('img/product/proof/') . $proof_of_payment->proof_of_payment ?>" alt="Bukti Pembayaran" style="width: 100%; height: auto; object-fit: cover; cursor: pointer;">
+                            </div>
+                            <div class="col">
+                                <div class="mb-3">
+                                    <p>Gambar di samping adalah bukti pembayaran yang telah diunggah</p>
+                                </div>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#infoModal">Bukti pembayaran</button>
+                            </div>
                         <?php elseif ($proof_of_payment->proof_of_payment) : ?>
                             <div class="col">
                                 <img id="paymentProofImg" src="<?= base_url('img/product/proof/') . $proof_of_payment->proof_of_payment ?>" alt="Bukti Pembayaran" style="width: 100%; height: auto; object-fit: cover; cursor: pointer;">
@@ -181,61 +191,61 @@
         </div>
     </div>
 </div>
-</div>
 
 <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="infoModalLabel">Pesanan Telah Disetujui</h1>
+                <h1 class="modal-title fs-5" id="infoModalLabel">Pesanan Telah <?= $order['status'] === 'berhasil' ? 'Disetujui' : 'Dibatalkan' ?></h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Anda tidak bisa mengubah bukti pembayaran lagi, karena pesanan telah disetujui oleh admin.
-                                <?php if ($order['status'] === 'berhasil') : ?>
-                                    <button class="btn btn-primary" disabled>Telah disetujui</button>
-                                <?php elseif ($order['status'] === 'gagal') : ?>
-                                    <button class="btn btn-danger" disabled>Telah dibatalkan</button>
-                                <?php else : ?>
-                                    <?= form_open_multipart(route_to('landing.cart.payment.update')) ?>
-                                    <?= csrf_field() ?>
-                                    <div class="mb-3">
-                                        <label for="proof_of_payment" class="form-label">File Bukti Pembayaran <span class="text-danger">*</span></label>
-                                        <input class="form-control <?= session('errors.proof_of_payment') ? 'is-invalid' : '' ?>" type="file" id="proof_of_payment" name="proof_of_payment" accept="image/*,application/pdf" onchange="previewProof(event)">
-                                        <?php if (session('errors.proof_of_payment')) : ?>
-                                            <div class="invalid-feedback">
-                                                <?= session('errors.proof_of_payment') ?>
-                                            </div>
-                                        <?php endif; ?>
-                                        <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
-                                    </div>
-                                    <div class="mb-3" id="previewContainer"></div>
-                                    <button type="submit" class="btn btn-primary">Perbarui Bukti</button>
-                                    <?= form_close() ?>
-                                <?php endif; ?>
-                            <?php else : ?>
-                                <?= form_open_multipart(route_to('landing.cart.payment.upload')) ?>
-                                <?= csrf_field() ?>
-                                <div id="previewContainer" class="lead text-danger mb-4">Belum ada bukti pembayaran!</div>
-                                <div class="mb-3">
-                                    <?php if (!$proof_of_payment->proof_of_payment) : ?>
-                                        <input type="hidden" name="uri_string" value="<?= uri_string() ?>">
-                                    <?php endif; ?>
-                                    <label for="proof_of_payment" class="form-label">File Bukti Pembayaran <span class="text-danger">*</span></label>
-                                    <input class="form-control <?= session('errors.proof_of_payment') ? 'is-invalid' : '' ?>" type="file" id="proof_of_payment" name="proof_of_payment" accept="image/*,application/pdf" onchange="previewProof(event)">
-                                    <?php if (session('errors.proof_of_payment')) : ?>
-                                        <div class="invalid-feedback">
-                                            <?= session('errors.proof_of_payment') ?>
-                                        </div>
-                                    <?php endif; ?>
-                                    <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
+                <?php if ($proof_of_payment->proof_of_payment) : ?>
+                    <?php if ($order['status'] === 'berhasil') : ?>
+                        <p>
+                            Anda tidak bisa mengubah bukti pembayaran lagi, karena pesanan telah disetujui oleh admin.
+                        </p>
+                        <button class="btn btn-primary" disabled>Telah disetujui</button>
+                    <?php elseif ($order['status'] === 'gagal') : ?>
+                        <p>
+                            Anda tidak bisa mengubah bukti pembayaran lagi, karena pesanan telah dibatalkan oleh admin.
+                        </p>
+                        <button class="btn btn-danger" disabled>Telah dibatalkan</button>
+                    <?php else : ?>
+                        <?= form_open_multipart(route_to('landing.cart.payment.update')) ?>
+                        <?= csrf_field() ?>
+                        <div class="mb-3">
+                            <label for="proof_of_payment" class="form-label">File Bukti Pembayaran <span class="text-danger">*</span></label>
+                            <input class="form-control <?= session('errors.proof_of_payment') ? 'is-invalid' : '' ?>" type="file" id="proof_of_payment" name="proof_of_payment" accept="image/*,application/pdf" onchange="previewProof(event)">
+                            <?php if (session('errors.proof_of_payment')) : ?>
+                                <div class="invalid-feedback">
+                                    <?= session('errors.proof_of_payment') ?>
                                 </div>
-                                <button type="submit" class="btn btn-primary">Unggah Bukti</button>
-                                <?= form_close() ?>
                             <?php endif; ?>
+                            <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
+                        </div>
+                        <div class="mb-3" id="previewContainer"></div>
+                        <button type="submit" class="btn btn-primary">Perbarui Bukti</button>
+                        <?= form_close() ?>
+                    <?php endif; ?>
+                <?php else : ?>
+                    <?= form_open_multipart(route_to('landing.cart.payment.upload')) ?>
+                    <?= csrf_field() ?>
+                    <div id="previewContainer" class="lead text-danger mb-4">Belum ada bukti pembayaran!</div>
+                    <div class="mb-3">
+                        <input type="hidden" name="uri_string" value="<?= uri_string() ?>">
+                        <label for="proof_of_payment" class="form-label">File Bukti Pembayaran <span class="text-danger">*</span></label>
+                        <input class="form-control <?= session('errors.proof_of_payment') ? 'is-invalid' : '' ?>" type="file" id="proof_of_payment" name="proof_of_payment" accept="image/*,application/pdf" onchange="previewProof(event)">
+                        <?php if (session('errors.proof_of_payment')) : ?>
+                            <div class="invalid-feedback">
+                                <?= session('errors.proof_of_payment') ?>
                             </div>
+                        <?php endif; ?>
+                        <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
                     </div>
-                </div>
+                    <button type="submit" class="btn btn-primary">Unggah Bukti</button>
+                    <?= form_close() ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>
