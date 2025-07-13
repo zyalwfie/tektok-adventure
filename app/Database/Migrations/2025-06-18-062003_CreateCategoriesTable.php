@@ -11,7 +11,7 @@ class CreateCategoryTable extends Migration
         $this->forge->addField([
             'id' => [
                 'type' => 'int',
-                'constraint' => 255,
+                'constraint' => 11,
                 'unsigned' => true,
                 'auto_increment' => true
             ],
@@ -33,7 +33,7 @@ class CreateCategoryTable extends Migration
             ]
         ]);
 
-        $this->forge->addKey('id');
+        $this->forge->addPrimaryKey('id');
         $this->forge->createTable('categories');
     }
 
@@ -41,4 +41,4 @@ class CreateCategoryTable extends Migration
     {
         $this->forge->dropTable('categories');
     }
-} 
+}

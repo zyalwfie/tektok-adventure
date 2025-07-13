@@ -4,7 +4,7 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class CreateOrderItemsTable extends Migration
+class CreatePaymentsTable extends Migration
 {
     public function up()
     {

@@ -129,21 +129,27 @@
                                 <div class="mb-3">
                                     <p>Gambar di samping adalah bukti pembayaran yang telah diunggah</p>
                                 </div>
-                                <?= form_open_multipart(route_to('landing.cart.payment.update')) ?>
-                                <?= csrf_field() ?>
-                                <div class="mb-3">
-                                    <label for="proof_of_payment" class="form-label">File Bukti Pembayaran <span class="text-danger">*</span></label>
-                                    <input class="form-control <?= session('errors.proof_of_payment') ? 'is-invalid' : '' ?>" type="file" id="proof_of_payment" name="proof_of_payment" accept="image/*,application/pdf" onchange="previewProof(event)">
-                                    <?php if (session('errors.proof_of_payment')) : ?>
-                                        <div class="invalid-feedback">
-                                            <?= session('errors.proof_of_payment') ?>
-                                        </div>
-                                    <?php endif; ?>
-                                    <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
-                                </div>
-                                <div class="mb-3" id="previewContainer"></div>
-                                <button type="submit" class="btn btn-primary">Perbarui Bukti</button>
-                                <?= form_close() ?>
+                                <?php if ($order['status'] === 'berhasil') : ?>
+                                    <button class="btn btn-primary" disabled>Telah disetujui</button>
+                                <?php elseif ($order['status'] === 'gagal') : ?>
+                                    <button class="btn btn-danger" disabled>Telah dibatalkan</button>
+                                <?php else : ?>
+                                    <?= form_open_multipart(route_to('landing.cart.payment.update')) ?>
+                                    <?= csrf_field() ?>
+                                    <div class="mb-3">
+                                        <label for="proof_of_payment" class="form-label">File Bukti Pembayaran <span class="text-danger">*</span></label>
+                                        <input class="form-control <?= session('errors.proof_of_payment') ? 'is-invalid' : '' ?>" type="file" id="proof_of_payment" name="proof_of_payment" accept="image/*,application/pdf" onchange="previewProof(event)">
+                                        <?php if (session('errors.proof_of_payment')) : ?>
+                                            <div class="invalid-feedback">
+                                                <?= session('errors.proof_of_payment') ?>
+                                            </div>
+                                        <?php endif; ?>
+                                        <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
+                                    </div>
+                                    <div class="mb-3" id="previewContainer"></div>
+                                    <button type="submit" class="btn btn-primary">Perbarui Bukti</button>
+                                    <?= form_close() ?>
+                                <?php endif; ?>
                             <?php else : ?>
                                 <?= form_open_multipart(route_to('landing.cart.payment.upload')) ?>
                                 <?= csrf_field() ?>

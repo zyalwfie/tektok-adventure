@@ -4,8 +4,6 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-use function PHPSTORM_META\type;
-
 class Cart extends Migration
 {
     public function up()
