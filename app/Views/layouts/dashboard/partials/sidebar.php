@@ -119,7 +119,7 @@
                 </a>
             </li>
             <li class="sidebar-item">
-                <a class="sidebar-link justify-content-between <?= (uri_string() === 'dashboard/user/profile/edit' || uri_string() === 'dashboard/admin/profile/edit') ? 'active' : '' ?>"
+                <a class="sidebar-link justify-content-between <?= (uri_string() === 'dashboard/user/profile/edit' || uri_string() === 'dashboard/admin/profile/edit' || uri_string() === 'dashboard/admin/profile/change-password' || uri_string() === 'dashboard/user/profile/change-password') ? 'active' : '' ?>"
                     href="<?= in_groups('admin') ? route_to('admin.profile.edit') : route_to('user.profile.edit') ?>"
                     aria-expanded="false">
                     <div class="d-flex align-items-center gap-3">

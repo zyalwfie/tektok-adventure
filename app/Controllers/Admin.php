@@ -11,6 +11,7 @@ use App\Models\ProductModel;
 use Myth\Auth\Models\UserModel;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use Myth\Auth\Password;
 
 class Admin extends BaseController
 {
@@ -104,6 +105,84 @@ class Admin extends BaseController
             return redirect()->route('admin.profile.index')->with('success', 'Profil berhasil diperbarui!');
         } else {
             return redirect()->route('admin.profile.index')->with('failed', 'Profil gagal diperbarui!');
+        }
+    }
+
+    public function changePassword()
+    {
+        $data = [
+            'pageTitle' => 'Dasbor | Admin | Ganti Sandi'
+        ];
+
+        return view('dashboard/admin/profile/change-password', $data);
+    }
+
+    public function updatePassword()
+    {
+        $rules = [
+            'current_password' => [
+                'label' => 'Sandi Saat Ini',
+                'rules' => 'required',
+                'errors' => [
+                    'required' => '{field} harus diisi.'
+                ]
+            ],
+            'new_password' => [
+                'label' => 'Sandi Baru',
+                'rules' => 'required|min_length[8]|strong_password',
+                'errors' => [
+                    'required' => '{field} harus diisi.',
+                    'min_length' => '{field} minimal {param} karakter.',
+                    'strong_password' => '{field} harus mengandung huruf besar, huruf kecil, angka, dan karakter khusus.'
+                ]
+            ],
+            'confirm_password' => [
+                'label' => 'Konfirmasi Sandi',
+                'rules' => 'required|matches[new_password]',
+                'errors' => [
+                    'required' => '{field} harus diisi.',
+                    'matches' => '{field} tidak cocok dengan Sandi Baru.'
+                ]
+            ]
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $currentPassword = $this->request->getPost('current_password');
+        $newPassword = $this->request->getPost('new_password');
+
+        $userId = user()->id;
+        $user = $this->userModel->find($userId);
+
+        if (!Password::verify($currentPassword, $user->password_hash)) {
+            return redirect()->back()->with('error', 'Sandi saat ini tidak benar!');
+        }
+
+        if (Password::verify($newPassword, $user->password_hash)) {
+            return redirect()->back()->with('error', 'Sandi baru tidak boleh sama dengan sandi saat ini!');
+        }
+
+        $passwordHash = Password::hash($newPassword);
+        $updateData = [
+            'id' => $userId,
+            'password_hash' => $passwordHash,
+            'reset_hash' => null,
+            'reset_at' => null,
+            'reset_expires' => null,
+            'force_pass_reset' => 0
+        ];
+
+        if ($this->userModel->save($updateData)) {
+            $auth = service('authentication');
+            $auth->logout();
+
+            session()->setFlashdata('message', 'Sandi berhasil diperbarui! Silakan login dengan sandi baru.');
+
+            return redirect()->to('/login');
+        } else {
+            return redirect()->back()->with('error', 'Gagal memperbarui sandi!');
         }
     }
 
@@ -353,7 +432,6 @@ class Admin extends BaseController
             return redirect()->back()->with('failed', 'Keranjang kosong!');
         }
 
-        // Validasi stok terlebih dahulu
         foreach ($cartItems as $item) {
             $product = $this->productModel->find($item['id']);
             if (!$product || $product['stock'] < $item['quantity']) {
@@ -361,10 +439,9 @@ class Admin extends BaseController
             }
         }
 
-        // Buat data order
         $orderData = [
-            'user_id' => user()->id, // Admin yang membuat pesanan
-            'status' => 'berhasil', // Langsung berhasil karena pembayaran langsung
+            'user_id' => user()->id,
+            'status' => 'berhasil',
             'total_price' => $postData['total_price'],
             'street_address' => 'Pembelian Langsung di Toko',
             'recipient_name' => $postData['recipient_name'],
@@ -373,32 +450,26 @@ class Admin extends BaseController
             'notes' => $postData['notes'] ?? 'Pembelian langsung di toko - ' . $postData['payment_method']
         ];
 
-        // Simpan order
         $this->orderModel->save($orderData);
         $orderId = $this->orderModel->insertID();
 
-        // Simpan order items dan update stok
         foreach ($cartItems as $item) {
-            // Simpan order item
             $this->orderItemModel->save([
                 'order_id' => $orderId,
                 'product_id' => $item['id'],
                 'quantity' => $item['quantity']
             ]);
 
-            // Update stok produk
             $product = $this->productModel->find($item['id']);
             $newStock = $product['stock'] - $item['quantity'];
             $this->productModel->update($item['id'], ['stock' => $newStock]);
         }
 
-        // Simpan data pembayaran
         $this->paymentModel->save([
             'order_id' => $orderId,
-            'proof_of_payment' => 'cash_payment_' . date('YmdHis') . '.txt' // Dummy file untuk pembayaran cash
+            'proof_of_payment' => 'cash_payment_' . date('YmdHis') . '.txt'
         ]);
 
-        // Generate receipt atau redirect
         return redirect()->route('admin.cashier.receipt', [$orderId])->with('success', 'Transaksi berhasil!');
     }
 
@@ -410,7 +481,6 @@ class Admin extends BaseController
             return redirect()->route('admin.cashier.index')->with('failed', 'Pesanan tidak ditemukan!');
         }
 
-        // Get order items
         $query = $this->orderItemBuilder
             ->select('order_items.*, products.name, products.price, products.image, products.discount')
             ->join('products', 'order_items.product_id = products.id')
@@ -440,7 +510,6 @@ class Admin extends BaseController
             return redirect()->route('admin.cashier.index')->with('failed', 'Pesanan tidak ditemukan!');
         }
 
-        // Get order items
         $query = $this->orderItemBuilder
             ->select('order_items.*, products.name, products.price, products.image, products.discount')
             ->join('products', 'order_items.product_id = products.id')
@@ -457,95 +526,95 @@ class Admin extends BaseController
         $html = $this->generateReceiptPdf($order, $orderItems);
 
         $dompdf->loadHtml($html);
-        $dompdf->setPaper([0, 0, 226.77, 1000], 'portrait'); // Paper size untuk struk (80mm width)
+        $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
 
         $filename = 'Struk_' . $orderId . '_' . date('YmdHis') . '.pdf';
-        $dompdf->stream($filename, ["Attachment" => false]); // false untuk display di browser
+        $dompdf->stream($filename, ["Attachment" => false]);
     }
 
     private function generateReceiptPdf($order, $orderItems)
     {
         $html = '
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Struk Pembayaran</title>
-        <style>
-            body {
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Struk Pembayaran</title>
+                <style>
+                    body {
                 font-family: Arial, sans-serif;
                 font-size: 12px;
                 margin: 10px;
-            }
-            .header {
-                text-align: center;
-                margin-bottom: 20px;
-            }
-            .header h2 {
-                margin: 0;
-                font-size: 16px;
-            }
-            .header p {
-                margin: 2px 0;
-                font-size: 10px;
-            }
-            .divider {
-                border-top: 1px dashed #000;
-                margin: 10px 0;
-            }
-            table {
-                width: 100%;
-                font-size: 11px;
-            }
-            .item-name {
-                font-weight: bold;
-            }
-            .text-right {
-                text-align: right;
-            }
-            .total {
-                font-weight: bold;
-                font-size: 14px;
-            }
-            .footer {
-                text-align: center;
-                margin-top: 20px;
-                font-size: 10px;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="header">
-            <h2>TEKTOK ADVENTURE</h2>
-            <p>Pringgabaya, Lombok Timur</p>
-            <p>Telp: +62 851-3903-8087</p>
-        </div>
+                    }
+                    .header {
+                        text-align: center;
+                        margin-bottom: 20px;
+                    }
+                    .header h2 {
+                        margin: 0;
+                        font-size: 16px;
+                    }
+                    .header p {
+                        margin: 2px 0;
+                        font-size: 10px;
+                    }
+                    .divider {
+                        border-top: 1px dashed #000;
+                        margin: 10px 0;
+                    }
+                    table {
+                        width: 100%;
+                        font-size: 11px;
+                    }
+                    .item-name {
+                        font-weight: bold;
+                    }
+                    .text-right {
+                        text-align: right;
+                    }
+                    .total {
+                        font-weight: bold;
+                        font-size: 14px;
+                    }
+                    .footer {
+                        text-align: center;
+                        margin-top: 20px;
+                        font-size: 10px;
+                    }
+                </style>
+        </head>
+        <body>
+            <div class="header">
+                <h2>TEKTOK ADVENTURE</h2>
+                <p>Pringgabaya, Lombok Timur</p>
+                <p>Telp: +62 851-3903-8087</p>
+            </div>
+            
+            <div class="divider"></div>
         
-        <div class="divider"></div>
+            <table>
+                <tr>
+                    <td>No. Order:</td>
+                    <td class="text-right">#' . str_pad($order['id'], 6, '0', STR_PAD_LEFT) . '</td>
+                </tr>
+                <tr>
+                    <td>Tanggal:</td>
+                    <td class="text-right">' . date('d/m/Y H:i', strtotime($order['created_at'])) . '</td>
+                </tr>
+                <tr>
+                    <td>Kasir:</td>
+                    <td class="text-right">' . user()->username . '</td>
+                </tr>
+                <tr>
+                    <td>Pelanggan:</td>
+                    <td class="text-right">' . $order['recipient_name'] . '</td>
+                </tr>
+            </table>
         
-        <table>
-            <tr>
-                <td>No. Order:</td>
-                <td class="text-right">#' . str_pad($order['id'], 6, '0', STR_PAD_LEFT) . '</td>
-            </tr>
-            <tr>
-                <td>Tanggal:</td>
-                <td class="text-right">' . date('d/m/Y H:i', strtotime($order['created_at'])) . '</td>
-            </tr>
-            <tr>
-                <td>Kasir:</td>
-                <td class="text-right">' . user()->username . '</td>
-            </tr>
-            <tr>
-                <td>Pelanggan:</td>
-                <td class="text-right">' . $order['recipient_name'] . '</td>
-            </tr>
-        </table>
+            <div class="divider"></div>
         
-        <div class="divider"></div>
-        
-        <table>';
+            <table>';
 
         $subtotal = 0;
         $totalDiscount = 0;
@@ -577,39 +646,39 @@ class Admin extends BaseController
         }
 
         $html .= '
-        </table>
+            </table>
         
-        <div class="divider"></div>
+            <div class="divider"></div>
         
-        <table>
-            <tr>
-                <td>Subtotal:</td>
-                <td class="text-right">Rp' . number_format($subtotal, 0, ',', '.') . '</td>
-            </tr>';
+            <table>
+                <tr>
+                    <td>Subtotal:</td>
+                    <td class="text-right">Rp' . number_format($subtotal, 0, ',', '.') . '</td>
+                </tr>';
 
         if ($totalDiscount > 0) {
             $html .= '
-            <tr>
-                <td>Total Diskon:</td>
-                <td class="text-right">-Rp' . number_format($totalDiscount, 0, ',', '.') . '</td>
-            </tr>';
+                <tr>
+                    <td>Total Diskon:</td>
+                    <td class="text-right">-Rp' . number_format($totalDiscount, 0, ',', '.') . '</td>
+                </tr>';
         }
 
         $html .= '
-            <tr class="total">
-                <td>TOTAL:</td>
-                <td class="text-right">Rp' . number_format($order['total_price'], 0, ',', '.') . '</td>
-            </tr>
-        </table>
+                <tr class="total">
+                    <td>TOTAL:</td>
+                    <td class="text-right">Rp' . number_format($order['total_price'], 0, ',', '.') . '</td>
+                </tr>
+            </table>
         
-        <div class="divider"></div>
+            <div class="divider"></div>
         
-        <div class="footer">
-            <p>Terima kasih atas kunjungan Anda</p>
-            <p>Barang yang sudah dibeli tidak dapat dikembalikan</p>
-        </div>
-    </body>
-    </html>';
+            <div class="footer">
+                <p>Terima kasih atas kunjungan Anda</p>
+                <p>Barang yang sudah dibeli tidak dapat dikembalikan</p>
+            </div>
+        </body>
+        </html>';
 
         return $html;
     }

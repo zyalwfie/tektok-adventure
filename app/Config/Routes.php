@@ -54,6 +54,8 @@ $routes->group('dashboard', ['filter' => 'login'], static function ($routes) {
         $routes->get('profile', 'Admin::profile', ['as' => 'admin.profile.index']);
         $routes->get('profile/edit', 'Admin::editProfile', ['as' => 'admin.profile.edit']);
         $routes->post('profile/update', 'Admin::updateProfile', ['as' => 'admin.profile.update']);
+        $routes->get('profile/change-password', 'Admin::changePassword', ['as' => 'admin.profile.change.password']);
+        $routes->post('profile/update-password', 'Admin::updatePassword', ['as' => 'admin.profile.update.password']);
 
         $routes->get('reports', 'Admin::reports', ['as' => 'admin.reports.index']);
         $routes->get('reports/preview', 'Admin::previewReportPdf', ['as' => 'admin.reports.preview']);
@@ -70,5 +72,7 @@ $routes->group('dashboard', ['filter' => 'login'], static function ($routes) {
         $routes->get('profile', 'User::profile', ['as' => 'user.profile.index']);
         $routes->get('profile/edit', 'User::editProfile', ['as' => 'user.profile.edit']);
         $routes->post('profile/update', 'User::updateProfile', ['as' => 'user.profile.update']);
+        $routes->get('profile/change-password', 'User::changePassword', ['as' => 'user.profile.change.password']);
+        $routes->post('profile/update-password', 'User::updatePassword', ['as' => 'user.profile.update.password']);
     });
 });

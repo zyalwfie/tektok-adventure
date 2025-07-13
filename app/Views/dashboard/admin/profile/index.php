@@ -55,6 +55,15 @@
                         <?= session('errors.username') ?>
                     </div>
                 </div>
+                <hr class="my-3">
+                <div class="d-flex gap-2">
+                    <a href="<?= route_to('admin.profile.edit') ?>" class="btn btn-primary">
+                        <i class="ti ti-edit me-2"></i>Edit Profil
+                    </a>
+                    <a href="<?= route_to('admin.profile.change.password') ?>" class="btn btn-warning">
+                        <i class="ti ti-key me-2"></i>Ganti Sandi
+                    </a>
+                </div>
             </div>
         </div>
     </div>

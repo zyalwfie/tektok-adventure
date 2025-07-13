@@ -16,13 +16,11 @@
         <div class="d-flex align-items-center justify-content-between mb-3">
             <h5 class="card-title fw-semibold">Detail Profil</h5>
             <?php if (session()->has('success')) : ?>
-                <div class="alert alert-success d-flex align-items-center gap-2" role="alert">
-                    <i class="ti ti-checks"></i>
+                <div class="alert alert-success m-0" role="alert">
                     <?= session('success') ?>
                 </div>
             <?php elseif (session()->has('failed')) : ?>
-                <div class="alert alert-danger d-flex align-items-center gap-2" role="alert">
-                    <i class="ti ti-x"></i>
+                <div class="alert alert-danger m-0" role="alert">
                     <?= session('failed') ?>
                 </div>
             <?php endif; ?>
@@ -56,6 +54,15 @@
                     <div class="invalid-feedback">
                         <?= session('errors.username') ?>
                     </div>
+                </div>
+                <hr class="my-3">
+                <div class="d-flex gap-2">
+                    <a href="<?= route_to('user.profile.edit') ?>" class="btn btn-primary">
+                        <i class="ti ti-edit me-2"></i>Edit Profil
+                    </a>
+                    <a href="<?= route_to('user.profile.change.password') ?>" class="btn btn-warning">
+                        <i class="ti ti-key me-2"></i>Ganti Sandi
+                    </a>
                 </div>
             </div>
         </div>
