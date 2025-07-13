@@ -75,7 +75,11 @@
                         <select name="category_id" class="form-select <?= session()->has('error_category') ? 'is-invalid' : '' ?>" aria-label="Select Category">
                             <option selected>Pilih kategori</option>
                             <?php foreach ($categories as $category) : ?>
-                                <option value="<?= $category['id'] ?>" <?= $category['id'] === $product['category_id'] ? 'selected' : '' ?>><?= $category['name'] ?></option>
+                                <?php if (isset($product)) : ?>
+                                    <option value="<?= $category['id'] ?>" <?= $category['id'] === $product['category_id'] ? 'selected' : '' ?>><?= $category['name'] ?></option>
+                                <?php else : ?>
+                                    <option value="<?= $category['id'] ?>"><?= $category['name'] ?></option>
+                                <?php endif; ?>
                             <?php endforeach; ?>
                         </select>
                         <div class="invalid-feedback">
@@ -86,7 +90,11 @@
 
                 <div class="mb-3">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="1" id="is_featured" name="is_featured" <?= $product['is_featured'] === '1' ? 'checked' : '' ?>>
+                        <?php if (isset($product)) : ?>
+                            <input class="form-check-input" type="checkbox" value="1" id="is_featured" name="is_featured" <?= $product['is_featured'] === '1' ? 'checked' : '' ?>>
+                        <?php else : ?>
+                            <input class="form-check-input" type="checkbox" value="1" id="is_featured" name="is_featured">
+                        <?php endif; ?>
                         <label class="form-check-label" for="is_featured">
                             Rekomendasi
                         </label>
