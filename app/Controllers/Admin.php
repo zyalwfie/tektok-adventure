@@ -4,7 +4,9 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\CategoryModel;
+use App\Models\OrderItemModel;
 use App\Models\OrderModel;
+use App\Models\PaymentModel;
 use App\Models\ProductModel;
 use Myth\Auth\Models\UserModel;
 use Dompdf\Dompdf;
@@ -12,7 +14,7 @@ use Dompdf\Options;
 
 class Admin extends BaseController
 {
-    protected $userModel, $productModel, $orderModel, $categoryModel, $productBuilder, $orderBuilder, $orderItemBuilder, $userBuilder, $authGroupUserBuilder, $db;
+    protected $userModel, $productModel, $orderModel, $categoryModel, $orderItemModel, $paymentModel, $productBuilder, $orderBuilder, $orderItemBuilder, $userBuilder, $authGroupUserBuilder, $db;
 
     public function __construct()
     {
@@ -26,6 +28,8 @@ class Admin extends BaseController
         $this->productModel = new ProductModel();
         $this->categoryModel = new CategoryModel();
         $this->orderModel = new OrderModel();
+        $this->orderItemModel = new OrderItemModel();
+        $this->paymentModel = new PaymentModel();
     }
 
     public function index()
@@ -299,9 +303,9 @@ class Admin extends BaseController
             ->join('products', 'order_items.product_id = products.id')
             ->where('order_items.order_id', $orderId)
             ->get();
-        
+
         $orders = $query->getResultArray();
-        
+
         $status = $this->request->getPost('status');
 
         $this->orderModel->update($orderId, [
@@ -318,6 +322,296 @@ class Admin extends BaseController
         } else {
             return redirect()->back()->with('proofed', 'Pesanan berhasil dibatalkan!');
         }
+    }
+
+    // Cashier Controller
+    public function cashier()
+    {
+        $query = $this->productBuilder
+            ->select('categories.id as categoryId, products.id as productId, categories.name as category_name, products.name as product_name, products.slug as product_slug, products.description as product_description, is_featured, image, discount, price, stock')
+            ->join('categories', 'products.category_id = categories.id')
+            ->where('stock >', 0)
+            ->orderBy('products.name', 'ASC')
+            ->get();
+
+        $products = $query->getResultArray();
+
+        $data = [
+            'pageTitle' => 'Tektok Adventure | Kasir',
+            'products' => $products
+        ];
+
+        return view('dashboard/admin/cashier/index', $data);
+    }
+
+    public function cashierCheckout()
+    {
+        $postData = $this->request->getPost();
+        $cartItems = json_decode($postData['cart_items'], true);
+
+        if (empty($cartItems)) {
+            return redirect()->back()->with('failed', 'Keranjang kosong!');
+        }
+
+        // Validasi stok terlebih dahulu
+        foreach ($cartItems as $item) {
+            $product = $this->productModel->find($item['id']);
+            if (!$product || $product['stock'] < $item['quantity']) {
+                return redirect()->back()->with('failed', 'Stok produk ' . $item['name'] . ' tidak mencukupi!');
+            }
+        }
+
+        // Buat data order
+        $orderData = [
+            'user_id' => user()->id, // Admin yang membuat pesanan
+            'status' => 'berhasil', // Langsung berhasil karena pembayaran langsung
+            'total_price' => $postData['total_price'],
+            'street_address' => 'Pembelian Langsung di Toko',
+            'recipient_name' => $postData['recipient_name'],
+            'recipient_email' => $postData['recipient_email'] ?? null,
+            'recipient_phone' => $postData['recipient_phone'] ?? null,
+            'notes' => $postData['notes'] ?? 'Pembelian langsung di toko - ' . $postData['payment_method']
+        ];
+
+        // Simpan order
+        $this->orderModel->save($orderData);
+        $orderId = $this->orderModel->insertID();
+
+        // Simpan order items dan update stok
+        foreach ($cartItems as $item) {
+            // Simpan order item
+            $this->orderItemModel->save([
+                'order_id' => $orderId,
+                'product_id' => $item['id'],
+                'quantity' => $item['quantity']
+            ]);
+
+            // Update stok produk
+            $product = $this->productModel->find($item['id']);
+            $newStock = $product['stock'] - $item['quantity'];
+            $this->productModel->update($item['id'], ['stock' => $newStock]);
+        }
+
+        // Simpan data pembayaran
+        $this->paymentModel->save([
+            'order_id' => $orderId,
+            'proof_of_payment' => 'cash_payment_' . date('YmdHis') . '.txt' // Dummy file untuk pembayaran cash
+        ]);
+
+        // Generate receipt atau redirect
+        return redirect()->route('admin.cashier.receipt', [$orderId])->with('success', 'Transaksi berhasil!');
+    }
+
+    public function cashierReceipt($orderId)
+    {
+        $order = $this->orderModel->find($orderId);
+
+        if (!$order) {
+            return redirect()->route('admin.cashier.index')->with('failed', 'Pesanan tidak ditemukan!');
+        }
+
+        // Get order items
+        $query = $this->orderItemBuilder
+            ->select('order_items.*, products.name, products.price, products.image, products.discount')
+            ->join('products', 'order_items.product_id = products.id')
+            ->where('order_items.order_id', $orderId)
+            ->get();
+
+        $orderItems = $query->getResult();
+
+        $data = [
+            'pageTitle' => 'Tektok Adventure | Struk Pembayaran',
+            'order' => $order,
+            'orderItems' => $orderItems
+        ];
+
+        return view('dashboard/admin/cashier/receipt', $data);
+    }
+
+    public function cashierReceiptPdf($orderId)
+    {
+        if (!class_exists('Dompdf\Dompdf')) {
+            throw new \RuntimeException('Dompdf library is not installed. Please run: composer require dompdf/dompdf');
+        }
+
+        $order = $this->orderModel->find($orderId);
+
+        if (!$order) {
+            return redirect()->route('admin.cashier.index')->with('failed', 'Pesanan tidak ditemukan!');
+        }
+
+        // Get order items
+        $query = $this->orderItemBuilder
+            ->select('order_items.*, products.name, products.price, products.image, products.discount')
+            ->join('products', 'order_items.product_id = products.id')
+            ->where('order_items.order_id', $orderId)
+            ->get();
+
+        $orderItems = $query->getResult();
+
+        $options = new Options();
+        $options->set('defaultFont', 'Helvetica');
+        $options->set('isHtml5ParserEnabled', true);
+
+        $dompdf = new Dompdf($options);
+        $html = $this->generateReceiptPdf($order, $orderItems);
+
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper([0, 0, 226.77, 1000], 'portrait'); // Paper size untuk struk (80mm width)
+        $dompdf->render();
+
+        $filename = 'Struk_' . $orderId . '_' . date('YmdHis') . '.pdf';
+        $dompdf->stream($filename, ["Attachment" => false]); // false untuk display di browser
+    }
+
+    private function generateReceiptPdf($order, $orderItems)
+    {
+        $html = '
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Struk Pembayaran</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                font-size: 12px;
+                margin: 10px;
+            }
+            .header {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            .header h2 {
+                margin: 0;
+                font-size: 16px;
+            }
+            .header p {
+                margin: 2px 0;
+                font-size: 10px;
+            }
+            .divider {
+                border-top: 1px dashed #000;
+                margin: 10px 0;
+            }
+            table {
+                width: 100%;
+                font-size: 11px;
+            }
+            .item-name {
+                font-weight: bold;
+            }
+            .text-right {
+                text-align: right;
+            }
+            .total {
+                font-weight: bold;
+                font-size: 14px;
+            }
+            .footer {
+                text-align: center;
+                margin-top: 20px;
+                font-size: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h2>TEKTOK ADVENTURE</h2>
+            <p>Pringgabaya, Lombok Timur</p>
+            <p>Telp: +62 851-3903-8087</p>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <table>
+            <tr>
+                <td>No. Order:</td>
+                <td class="text-right">#' . str_pad($order['id'], 6, '0', STR_PAD_LEFT) . '</td>
+            </tr>
+            <tr>
+                <td>Tanggal:</td>
+                <td class="text-right">' . date('d/m/Y H:i', strtotime($order['created_at'])) . '</td>
+            </tr>
+            <tr>
+                <td>Kasir:</td>
+                <td class="text-right">' . user()->username . '</td>
+            </tr>
+            <tr>
+                <td>Pelanggan:</td>
+                <td class="text-right">' . $order['recipient_name'] . '</td>
+            </tr>
+        </table>
+        
+        <div class="divider"></div>
+        
+        <table>';
+
+        $subtotal = 0;
+        $totalDiscount = 0;
+
+        foreach ($orderItems as $item) {
+            $itemTotal = $item->price * $item->quantity;
+            $discount = $item->discount > 0 ? ($item->discount / 100) * $itemTotal : 0;
+            $finalPrice = $itemTotal - $discount;
+
+            $subtotal += $itemTotal;
+            $totalDiscount += $discount;
+
+            $html .= '
+            <tr>
+                <td colspan="2" class="item-name">' . $item->name . '</td>
+            </tr>
+            <tr>
+                <td>' . $item->quantity . ' x Rp' . number_format($item->price, 0, ',', '.') . '</td>
+                <td class="text-right">Rp' . number_format($itemTotal, 0, ',', '.') . '</td>
+            </tr>';
+
+            if ($discount > 0) {
+                $html .= '
+            <tr>
+                <td>Diskon ' . $item->discount . '%</td>
+                <td class="text-right">-Rp' . number_format($discount, 0, ',', '.') . '</td>
+            </tr>';
+            }
+        }
+
+        $html .= '
+        </table>
+        
+        <div class="divider"></div>
+        
+        <table>
+            <tr>
+                <td>Subtotal:</td>
+                <td class="text-right">Rp' . number_format($subtotal, 0, ',', '.') . '</td>
+            </tr>';
+
+        if ($totalDiscount > 0) {
+            $html .= '
+            <tr>
+                <td>Total Diskon:</td>
+                <td class="text-right">-Rp' . number_format($totalDiscount, 0, ',', '.') . '</td>
+            </tr>';
+        }
+
+        $html .= '
+            <tr class="total">
+                <td>TOTAL:</td>
+                <td class="text-right">Rp' . number_format($order['total_price'], 0, ',', '.') . '</td>
+            </tr>
+        </table>
+        
+        <div class="divider"></div>
+        
+        <div class="footer">
+            <p>Terima kasih atas kunjungan Anda</p>
+            <p>Barang yang sudah dibeli tidak dapat dikembalikan</p>
+        </div>
+    </body>
+    </html>';
+
+        return $html;
     }
 
     // User Controller

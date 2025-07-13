@@ -71,6 +71,17 @@
                             </span>
                             <span class="hide-menu">Produk</span>
                         </div>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link justify-content-between <?= url_is('dashboard/admin/cashier*') ? 'active' : '' ?>"
+                        href="<?= route_to('admin.cashier.index') ?>" aria-expanded="false">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="d-flex">
+                                <i class="ti ti-cash-banknote"></i>
+                            </span>
+                            <span class="hide-menu">Kasir</span>
+                        </div>
 
                     </a>
                 </li>

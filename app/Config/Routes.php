@@ -46,6 +46,11 @@ $routes->group('dashboard', ['filter' => 'login'], static function ($routes) {
         $routes->get('orders/show/(:num)', 'Admin::showOrder/$1', ['as' => 'admin.orders.show']);
         $routes->post('orders/update/(:num)', 'Admin::updateOrder/$1', ['as' => 'admin.orders.update']);
 
+        $routes->get('cashier', 'Admin::cashier', ['as' => 'admin.cashier.index']);
+        $routes->post('cashier/checkout', 'Admin::cashierCheckout', ['as' => 'admin.cashier.checkout']);
+        $routes->get('cashier/receipt/(:num)', 'Admin::cashierReceipt/$1', ['as' => 'admin.cashier.receipt']);
+        $routes->get('cashier/receipt/(:num)/pdf', 'Admin::cashierReceiptPdf/$1', ['as' => 'admin.cashier.receipt.pdf']);
+
         $routes->get('profile', 'Admin::profile', ['as' => 'admin.profile.index']);
         $routes->get('profile/edit', 'Admin::editProfile', ['as' => 'admin.profile.edit']);
         $routes->post('profile/update', 'Admin::updateProfile', ['as' => 'admin.profile.update']);
