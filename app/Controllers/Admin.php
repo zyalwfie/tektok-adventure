@@ -273,6 +273,7 @@ class Admin extends BaseController
 
         $postData = $this->request->getPost();
         $postData['slug'] = $product['name'] !== $postData['name'] ? url_title($postData['name'], '-', true) : $product['slug'];
+        $postData['id'] = $product['id'];
 
         $categoryExists = $this->categoryModel->find($postData['category_id'] ?? null);
         if (!$categoryExists) {

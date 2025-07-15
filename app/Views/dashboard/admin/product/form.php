@@ -103,7 +103,7 @@
 
                 <div class="mb-3">
                     <label for="description" class="form-label">Deskripsi</label>
-                    <div id="editor" style="height: 200px;"><?= old('description', $product['description'] ?? '') ?></div>
+                    <div id="editor" style="height: 200px;"></div>
                     <input type="hidden" id="description" name="description">
                 </div>
 
@@ -149,18 +149,22 @@
         placeholder: 'Tulis deskripsi produk...',
     });
 
-    function htmlToPlainText(html) {
-        const div = document.createElement("div");
-        div.innerHTML = html;
-        return div.textContent || div.innerText || "";
+    function loadContentToQuill() {
+        const existingContent = `<?= old('description', $product['description'] ?? '') ?>`;
+
+        if (existingContent && existingContent.trim() !== '') {
+            try {
+                quill.root.innerHTML = existingContent;
+            } catch (error) {
+                console.error('Error loading content to Quill:', error);
+                quill.setText(existingContent.replace(/<[^>]*>/g, ''));
+            }
+        }
     }
 
-    const rawHtml = `<?= old('description', $product['description'] ?? '') ?>`;
-
-    if (rawHtml) {
-        const plain = htmlToPlainText(rawHtml);
-        quill.setText(plain);
-    }
+    document.addEventListener('DOMContentLoaded', function() {
+        loadContentToQuill();
+    });
 
     document.querySelector('form').addEventListener('submit', function(e) {
         const descriptionInput = document.getElementById('description');

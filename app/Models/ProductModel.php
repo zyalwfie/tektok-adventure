@@ -39,7 +39,7 @@ class ProductModel extends Model
 
     // Validation
     protected $validationRules      = [
-        'id' => 'permit_empty',
+        'id' => 'is_natural_no_zero',
         'category_id' => 'required',
         'name' => 'required|min_length[3]|max_length[255]|is_unique[products.name,id,{id}]',
         'slug' => 'required',

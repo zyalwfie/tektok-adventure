@@ -216,8 +216,8 @@
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label for="desciption" class="form-label">Deskripsi</label>
-                    <textarea rows="4" class="form-control" id="description" disabled></textarea>
+                    <label for="description" class="form-label">Deskripsi</label>
+                    <div id="description_preview" class="border rounded p-3" style="min-height: 100px; background-color: #f8f9fa;"></div>
                 </div>
             </div>
         </div>
@@ -273,6 +273,55 @@
         transform: translateY(-50%);
         transition: .3s ease-in-out;
     }
+
+    #description_preview {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+    }
+
+    #description_preview h1,
+    #description_preview h2,
+    #description_preview h3,
+    #description_preview h4,
+    #description_preview h5,
+    #description_preview h6 {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+    }
+
+    #description_preview p {
+        margin-bottom: 1rem;
+    }
+
+    #description_preview ul,
+    #description_preview ol {
+        margin-bottom: 1rem;
+        padding-left: 2rem;
+    }
+
+    #description_preview blockquote {
+        border-left: 4px solid #dee2e6;
+        padding-left: 1rem;
+        margin-left: 0;
+        margin-bottom: 1rem;
+        font-style: italic;
+    }
+
+    #description_preview code {
+        background-color: #e9ecef;
+        padding: 0.125rem 0.25rem;
+        border-radius: 0.25rem;
+        font-family: 'Courier New', monospace;
+    }
+
+    #description_preview pre {
+        background-color: #e9ecef;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        overflow-x: auto;
+        margin-bottom: 1rem;
+    }
 </style>
 <?= $this->endSection(); ?>
 
@@ -289,6 +338,18 @@
             .replace(/\s+/g, '');;
     }
 
+    // Function to convert HTML to clean formatted display
+    function displayFormattedHTML(htmlContent) {
+        if (!htmlContent) return 'Tidak ada deskripsi';
+
+        // Create a temporary div to parse HTML
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = htmlContent;
+
+        // Return the parsed HTML for display
+        return tempDiv.innerHTML;
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         const detailModal = document.getElementById('detailModal');
         const productName = detailModal.querySelector('#name');
@@ -298,7 +359,7 @@
         const stock = detailModal.querySelector('#stock');
         const image = detailModal.querySelector('#previewImg');
         const category = detailModal.querySelector('#category_name')
-        const description = detailModal.querySelector('#description');
+        const descriptionPreview = detailModal.querySelector('#description_preview');
         const isFeatured = detailModal.querySelector('#is_featured');
 
         document.querySelectorAll('#btn-detail-modal').forEach(btn => {
@@ -318,7 +379,9 @@
                 stock.value = this.dataset.stock;
                 image.src = this.dataset.image;
                 category.value = this.dataset.category_name;
-                description.value = this.dataset.description;
+
+                // Display formatted HTML description
+                descriptionPreview.innerHTML = displayFormattedHTML(this.dataset.description);
 
                 if (this.dataset.is_featured == '1') {
                     isFeatured.checked = true;
