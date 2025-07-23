@@ -21,7 +21,6 @@
 
 </section>
 
-
 <div class="untree_co-section before-footer-section">
     <div class="container">
         <div class="row mb-5">
@@ -53,7 +52,7 @@
                                 </td>
                                 <td>Rp<?= number_format($cart->price, '0', '.', ',') ?></td>
                                 <td>
-                                    <div class="input-group mb-3 d-flex align-items-center quantity-container" style="max-width: 120px">
+                                    <div class="input-group d-flex align-items-center quantity-container" style="max-width: 120px">
                                         <div class="input-group-prepend">
                                             <?= form_open(base_url(route_to('landing.cart.decrease', $cart->cart_id))) ?>
                                             <?= csrf_field() ?>
@@ -95,7 +94,7 @@
         </div>
 
         <?= form_open(base_url(route_to('landing.cart.payment.create')), ['class' => 'row']) ?>
-        <div class="col-12 col-lg-5 mb-5 mb-md-0">
+        <div class="col-12 col-lg-6 mb-5 mb-md-0">
             <h2 class="h3 mb-3 text-black">Rincian Pengiriman</h2>
             <div class="p-3 p-lg-5 border bg-white">
 
@@ -151,7 +150,7 @@
 
         <input type="hidden" name="total_price" value="<?= $cartsTotalAmount ?>">
 
-        <div class="col-12 col-lg-7">
+        <div class="col-12 col-lg-6">
             <div class="row">
                 <div class="col-md-12">
                     <h2 class="h3 mb-3 text-black">Pesananmu</h2>
@@ -255,7 +254,7 @@
 
 <?= $this->section('head_css'); ?>
 <style>
-    @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+    <?= url_is('/') ? 'active' : '' ?>@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 
     body {
         overflow-x: hidden;

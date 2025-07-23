@@ -211,7 +211,7 @@
     <!-- End Section Title -->
 
     <div class="container">
-        <div class="row g-4 row-cols-2 row-cols-md-3 justify-content-center" data-aos="fade-up" data-aos-delay="100">
+        <div class="row g-4 row-cols-2 row-cols-md-3 justify-content-start" data-aos="fade-up" data-aos-delay="100">
             <?php foreach ($products as $product) : ?>
                 <div class="product-item">
                     <div class="card h-100">

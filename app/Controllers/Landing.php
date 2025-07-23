@@ -26,7 +26,6 @@ class Landing extends BaseController
         $this->paymentModel = new PaymentModel();
     }
 
-
     public function index()
     {
         $data = [
