@@ -759,7 +759,7 @@ class Admin extends BaseController
         }, 0);
 
         $data = [
-            'pageTitle' => 'Nuansa | Admin | Laporan Transaksi',
+            'pageTitle' => 'Tektok Adventure | Admin | Laporan Transaksi',
             'orders' => $this->orderModel->findAll(),
             'filteredOrders' => $filteredOrders,
             'totalSales' => $totalSales,
