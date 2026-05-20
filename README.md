@@ -1,68 +1,246 @@
-# CodeIgniter 4 Application Starter
+# Tektok Adventure
 
-## What is CodeIgniter?
+Tektok Adventure is a CodeIgniter 4 web application for managing an outdoor and camping equipment store. The application combines an online shop, customer checkout flow, admin dashboard, product and order management, cashier/POS transaction flow, payment proof upload, stock control, and PDF-based receipt/report generation.
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+This project was built as a portfolio project to demonstrate PHP web development skills using MVC architecture, database-driven business logic, role-based access control, form validation, file upload handling, transaction workflows, and report generation.
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+## Project Highlights
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+- Built with **PHP 8** and **CodeIgniter 4** using MVC-based structure.
+- Implements separate workflows for public visitors, authenticated users, and admins.
+- Uses **Myth/Auth** for authentication and role-based access control.
+- Supports product catalog browsing, cart management, checkout, payment proof upload, and order history.
+- Provides admin-side product, user, order, cashier, and sales report management.
+- Generates PDF receipts and transaction reports using **Dompdf**.
+- Applies database relationships across products, categories, carts, orders, order items, users, and payments.
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+## Tech Stack
 
-## Installation & updates
+| Area | Technology |
+|---|---|
+| Backend | PHP 8, CodeIgniter 4 |
+| Architecture | MVC, CodeIgniter Routing, Controllers, Models, Views |
+| Authentication | Myth/Auth |
+| Database | MySQL / MariaDB |
+| Frontend | HTML, CSS/SCSS, JavaScript |
+| PDF Generation | Dompdf |
+| Dependency Management | Composer |
+| Development Tools | Git, GitHub, VS Code |
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
+## Main Features
 
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
+### Public Storefront
 
-## Setup
+- Landing page for store branding and featured products.
+- Product catalog page.
+- Product detail page with related products.
+- Category-based product organization.
+- Cart counter for authenticated users.
 
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
+### Customer Features
 
-## Important Change with index.php
+- User registration and login via Myth/Auth.
+- Add products to cart.
+- Increase or decrease cart item quantity.
+- Remove products from cart.
+- Checkout and create orders from cart items.
+- Upload payment proof with validation.
+- View order history and order details.
+- Manage user profile and change password.
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+### Admin Dashboard
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+- Dashboard summary for completed orders, pending orders, total sales, and user count.
+- Product management with create, read, update, and delete operations.
+- Product image upload with file type and file size validation.
+- Category-based product data handling.
+- User management for customer accounts.
+- Order management and order detail review.
+- Payment proof review.
+- Order status update.
+- Stock deduction when an order is approved.
 
-**Please** read the user guide for a better explanation of how CI4 works!
+### Cashier / POS Flow
 
-## Repository Management
+- Admin cashier page for direct in-store purchases.
+- Add available products to cashier cart.
+- Validate stock before checkout.
+- Create completed orders from cashier transactions.
+- Deduct product stock after successful transaction.
+- Generate printable receipt view.
+- Export receipt to PDF.
 
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+### Sales Reports
 
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
+- Filter successful transactions by date range.
+- Calculate total sales from filtered orders.
+- Preview transaction report.
+- Export sales report to PDF.
 
-## Server Requirements
+## What This Project Demonstrates
 
-PHP version 8.1 or higher is required, with the following extensions installed:
+This project highlights practical backend and fullstack web development skills, especially for PHP Programmer roles.
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+### PHP and CodeIgniter Development
 
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - If you are still using PHP 7.4 or 8.0, you should upgrade immediately.
-> - The end of life date for PHP 8.1 will be December 31, 2025.
+- Structured application logic using CodeIgniter controllers, models, views, and route groups.
+- Implemented business workflows for shopping cart, checkout, payment, order approval, cashier transactions, and reporting.
+- Applied reusable model-based database operations.
 
-Additionally, make sure that the following extensions are enabled in your PHP:
+### MVC and Routing
 
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+- Organized public, user, and admin routes using CodeIgniter route groups.
+- Applied login and role-based filters to protect cart, user dashboard, and admin dashboard areas.
+- Separated business responsibilities across Landing, User, and Admin controllers.
+
+### Database-Driven Application Logic
+
+- Designed workflows around relational data such as products, categories, carts, orders, order items, payments, and users.
+- Used query builder joins to retrieve product, order, user, and payment information.
+- Managed order item creation and stock updates based on transaction status.
+
+### Authentication and Authorization
+
+- Integrated Myth/Auth for login and user identity management.
+- Implemented role-based access between admin and user dashboards.
+- Added profile update and password change flows.
+
+### File Upload and Validation
+
+- Validated uploaded product images by extension and size.
+- Validated payment proof uploads by MIME type and size.
+- Generated random file names for uploaded files to avoid naming conflicts.
+
+### PDF Generation
+
+- Created receipt PDF output for cashier transactions.
+- Created report PDF output for sales transaction reports.
+- Used Dompdf to convert HTML-based report templates into printable documents.
+
+## Repository Structure
+
+```txt
+app/
+├── Config/
+│   └── Routes.php
+├── Controllers/
+│   ├── Admin.php
+│   ├── Landing.php
+│   └── User.php
+├── Database/
+│   └── Migrations/
+├── Models/
+│   ├── CartModel.php
+│   ├── CategoryModel.php
+│   ├── OrderItemModel.php
+│   ├── OrderModel.php
+│   ├── PaymentModel.php
+│   └── ProductModel.php
+└── Views/
+    ├── dashboard/
+    └── landing/
+
+public/
+├── img/
+└── assets/
+```
+
+## Installation
+
+### Prerequisites
+
+Make sure your environment has the following installed:
+
+- PHP 8.1 or higher
+- Composer
+- MySQL or MariaDB
+- Web server such as Apache, Nginx, or CodeIgniter local development server
+
+### Setup Steps
+
+1. Clone this repository.
+
+```bash
+git clone https://github.com/zyalwfie/tektok-adventure.git
+cd tektok-adventure
+```
+
+2. Install dependencies.
+
+```bash
+composer install
+```
+
+3. Create the environment file.
+
+```bash
+cp env .env
+```
+
+4. Configure the application URL and database connection in `.env`.
+
+```env
+CI_ENVIRONMENT = development
+app.baseURL = 'http://localhost:8080/'
+
+database.default.hostname = localhost
+database.default.database = tektok_adventure
+database.default.username = root
+database.default.password =
+database.default.DBDriver = MySQLi
+database.default.port = 3306
+```
+
+5. Create the database.
+
+```sql
+CREATE DATABASE tektok_adventure;
+```
+
+6. Run database migrations.
+
+```bash
+php spark migrate
+```
+
+7. Start the development server.
+
+```bash
+php spark serve
+```
+
+8. Open the application in your browser.
+
+```txt
+http://localhost:8080
+```
+
+## Portfolio Relevance
+
+This project is suitable to showcase for PHP Programmer or Backend Web Developer positions because it demonstrates:
+
+- PHP-based web application development.
+- CodeIgniter 4 MVC implementation.
+- CRUD operations for real business entities.
+- Authentication and role-based access control.
+- MySQL relational data handling.
+- Query builder usage and table joins.
+- Product, order, cart, payment, cashier, and reporting workflows.
+- File upload validation.
+- PDF receipt and report generation.
+- GitHub-based project documentation.
+
+## Future Improvements
+
+- Add seeders for demo admin, user, category, and product data.
+- Add screenshots for landing page, shop page, admin dashboard, cashier page, and report page.
+- Add unit or feature tests for checkout, order approval, and stock deduction.
+- Improve transaction handling using database transactions for checkout and cashier flows.
+- Add pagination and search to product, order, and user tables.
+- Add REST API endpoints for product and order resources.
+- Add deployment instructions for shared hosting or Linux server environments.
+
+## Author
+
+**Ziyat Al Wafi**  
+GitHub: [github.com/zyalwfie](https://github.com/zyalwfie)
