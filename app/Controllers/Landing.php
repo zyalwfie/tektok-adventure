@@ -339,7 +339,7 @@ class Landing extends BaseController
     public function paymentDone()
     {
         $data = [
-            'pageTitle' => 'Nuansa | Pembayaran',
+            'pageTitle' => 'Tektok Adventure | Pembayaran',
             'cartsTotalCount' => ((!logged_in()) ? 0 : $this->cartModel->where('user_id', user()->id)->countAllResults()),
         ];
 

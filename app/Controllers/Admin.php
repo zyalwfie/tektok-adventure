@@ -52,7 +52,7 @@ class Admin extends BaseController
         $orders = $query->getResult();
 
         $data = [
-            'pageTitle' => 'Dashboard | Nuansa',
+            'pageTitle' => 'Dashboard | Tektok Adventure',
             'totalEarning' => $totalEarningAmount,
             'completedOrdersCount' => $completedOrdersCount,
             'pendingOrdersCount' => $pendingOrdersCount,
@@ -341,7 +341,7 @@ class Admin extends BaseController
         $orders = $this->orderModel->findAll();
 
         $data = [
-            'pageTitle' => 'Nuansa | Admin | Pesanan',
+            'pageTitle' => 'Tektok Adventure | Admin | Pesanan',
             'orders' => $orders
         ];
 
@@ -366,7 +366,7 @@ class Admin extends BaseController
             ->getRow();
 
         $data = [
-            'pageTitle' => 'Nuansa | Detail Pesanan',
+            'pageTitle' => 'Tektok Adventure | Detail Pesanan',
             'order_items' => $orderItems,
             'order' => $order,
             'proof_of_payment' => $proofOfPayment

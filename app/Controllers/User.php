@@ -40,7 +40,7 @@ class User extends BaseController
         $orders = $query->getResult();
 
         $data = [
-            'pageTitle' => 'Dashboard | Nuansa',
+            'pageTitle' => 'Dashboard | Tektok Adventure',
             'totalEarning' => $totalEarningAmount,
             'completedOrdersCount' => $completedOrdersCount,
             'pendingOrdersCount' => $pendingOrdersCount,
@@ -80,7 +80,7 @@ class User extends BaseController
             ->getRow();
 
         $data = [
-            'pageTitle' => 'Nuansa | Detail Pesanan',
+            'pageTitle' => 'Tektok Adventure | Detail Pesanan',
             'order_items' => $orderItems,
             'order' => $order,
             'proof_of_payment' => $proofOfPayment
